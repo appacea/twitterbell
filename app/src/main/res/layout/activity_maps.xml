@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) Tchipr Ltd 2019. All right reserved.
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Created by Yvan Stern on 6/4/19 7:41 PM
+  ~
+  ~ Last modified 6/4/19 7:40 PM
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:focusable="true"
+             android:focusableInTouchMode="true"
+             android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+<fragment
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:id="@+id/map"
+          tools:context=".ui.main.MapsActivity"
+          android:name="com.google.android.gms.maps.SupportMapFragment"/>
+
+    <com.appacea.twitterbell.ui.main.custom.Searchbar
+            android:id="@+id/searchbar" android:layout_width="match_parent"
+                                                      android:layout_height="60dp"
+                                                      android:layout_margin="20dp"></com.appacea.twitterbell.ui.main.custom.Searchbar>
+    <com.appacea.twitterbell.ui.main.custom.DraggingRecyclerView android:layout_width="match_parent"
+                                                                 android:id="@+id/drvBottom"
+                                                                 android:layout_height="200dp"
+                                                                 android:background="@android:color/transparent"
+                                                                 android:layout_gravity="bottom"></com.appacea.twitterbell.ui.main.custom.DraggingRecyclerView>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_gps_fixed_24px"
+            android:background="@drawable/fab_location"
+            app:backgroundTint="@android:color/transparent"
+            app:elevation="1dp"
+            android:clickable="true"
+            android:id="@+id/fabLocation" android:layout_gravity="right|center_vertical"
+            android:layout_marginEnd="20dp"/>
+
+    <ImageView
+            android:id="@+id/expanded_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:translationZ="5dp"
+            android:visibility="invisible" />
+
+    <VideoView
+                android:id="@+id/expanded_video" android:layout_width="match_parent" android:layout_height="match_parent"
+               android:translationZ="5dp"
+               android:visibility="invisible" />
+</FrameLayout>

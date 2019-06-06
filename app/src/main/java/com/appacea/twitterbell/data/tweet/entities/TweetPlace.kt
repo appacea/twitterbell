@@ -12,10 +12,9 @@ package com.appacea.twitterbell.data.tweet.entities
 import androidx.room.Embedded
 import com.google.gson.annotations.SerializedName
 
-data class Place(
+data class TweetPlace(
 
-    @SerializedName("id")
-    val id: Long,
+    val id: String,
 
-    @Embedded(prefix = "bbox_")  val bounding_box: GeoPoint
+    val bounding_box: GeoPolygon
 )

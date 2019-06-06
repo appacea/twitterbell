@@ -9,3 +9,6 @@
 
 package com.appacea.twitterbell.data.tweet.entities
 
+import com.appacea.twitterbell.data.tweet.network.TweetMediaVideoVariant
+
+data class TweetMediaVideo(val variants:List<TweetMediaVideoVariant>)

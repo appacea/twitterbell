@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) Tchipr Ltd 2019. All right reserved.
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Created by Yvan Stern on 6/5/19 9:44 PM
+  ~
+  ~ Last modified 6/5/19 9:44 PM
+  -->
+
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+       android:innerRadius="0dp"
+       android:shape="ring"
+       android:thicknessRatio="2"
+       android:useLevel="false" >
+    <solid android:color="@android:color/transparent" />
+
+    <stroke
+            android:width="3dp"
+            android:color="@android:color/white" />
+</shape>

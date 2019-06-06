@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.appacea.twitterbell.common.architecture
 
-package com.android.example.github.repository
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MediatorLiveData
-import android.support.annotation.MainThread
-import android.support.annotation.WorkerThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import com.appacea.twitterbell.common.repo.Resource
+import com.appacea.twitterbell.data.tweet.network.NetworkResponse
 
 /**
  * A generic class that can provide a resource backed by both the sqlite database and the network.
@@ -36,8 +32,8 @@ import com.appacea.twitterbell.common.repo.Resource
  * @param <RequestType>
 </RequestType></ResultType> */
 abstract class NetworkBoundResource<ResultType, RequestType>
-@MainThread constructor(private val appExecutors: AppExecutors) {
-
+@MainThread constructor() {
+    private val appExecutors: AppExecutors = AppExecutors()
     private val result = MediatorLiveData<Resource<ResultType>>()
 
     init {
@@ -64,43 +60,69 @@ abstract class NetworkBoundResource<ResultType, RequestType>
     }
 
     private fun fetchFromNetwork(dbSource: LiveData<ResultType>) {
-        val apiResponse = createCall()
+        val networkResponse = createCall()
         // we re-attach dbSource as a new source, it will dispatch its latest value quickly
         result.addSource(dbSource) { newData ->
             setValue(Resource.loading(newData))
         }
-        result.addSource(apiResponse) { response ->
-            result.removeSource(apiResponse)
-            result.removeSource(dbSource)
-            when (response) {
-                is ApiSuccessResponse -> {
-                    appExecutors.diskIO().execute {
-                        saveCallResult(processResponse(response))
-                        appExecutors.mainThread().execute {
-                            // we specially request a new live data,
-                            // otherwise we will get immediately last cached value,
-                            // which may not be updated with latest results received from network.
-                            result.addSource(loadFromDb()) { newData ->
-                                setValue(Resource.success(newData))
+        result.addSource(networkResponse) { response ->
+            response?.let {
+                when (!response.isFailure) {
+                    true ->{
+                        response.body?.let {
+                            appExecutors.diskIO().execute {
+                                saveCallResult(it)
+                                appExecutors.mainThread().execute {
+                                    result.addSource(loadFromDb()) { newData ->
+                                        newData?.let {
+                                            setValue(Resource.success(newData))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    false->{
+                        onFetchFailed()
+                        response.message?.let {
+                            result.addSource(dbSource) { newData ->
+                                setValue(Resource.error(it, newData))
                             }
                         }
                     }
                 }
-                is ApiEmptyResponse -> {
-                    appExecutors.mainThread().execute {
-                        // reload from disk whatever we had
-                        result.addSource(loadFromDb()) { newData ->
-                            setValue(Resource.success(newData))
-                        }
-                    }
-                }
-                is ApiErrorResponse -> {
-                    onFetchFailed()
-                    result.addSource(dbSource) { newData ->
-                        setValue(Resource.error(response.errorMessage, newData))
-                    }
-                }
             }
+//            result.removeSource(apiResponse)
+//            result.removeSource(dbSource)
+//            when (response) {
+////                is ApiSuccessResponse -> {
+////                    appExecutors.diskIO().execute {
+////                        saveCallResult(processResponse(response))
+////                        appExecutors.mainThread().execute {
+////                            // we specially request a new live data,
+////                            // otherwise we will get immediately last cached value,
+////                            // which may not be updated with latest results received from network.
+////                            result.addSource(loadFromDb()) { newData ->
+////                                setValue(Resource.success(newData))
+////                            }
+////                        }
+////                    }
+////                }
+////                is ApiEmptyResponse -> {
+////                    appExecutors.mainThread().execute {
+////                        // reload from disk whatever we had
+////                        result.addSource(loadFromDb()) { newData ->
+////                            setValue(Resource.success(newData))
+////                        }
+////                    }
+////                }
+////                is ApiErrorResponse -> {
+////                    onFetchFailed()
+////                    result.addSource(dbSource) { newData ->
+////                        setValue(Resource.error(response.errorMessage, newData))
+////                    }
+////                }
+//            }
         }
     }
 
@@ -108,8 +130,8 @@ abstract class NetworkBoundResource<ResultType, RequestType>
 
     fun asLiveData() = result as LiveData<Resource<ResultType>>
 
-    @WorkerThread
-    protected open fun processResponse(response: ApiSuccessResponse<RequestType>) = response.body
+  //  @WorkerThread
+  //  protected open fun processResponse(response: ApiSuccessResponse<RequestType>) = response.body
 
     @WorkerThread
     protected abstract fun saveCallResult(item: RequestType)
@@ -121,5 +143,5 @@ abstract class NetworkBoundResource<ResultType, RequestType>
     protected abstract fun loadFromDb(): LiveData<ResultType>
 
     @MainThread
-    protected abstract fun createCall(): LiveData<ApiResponse<RequestType>>
+    protected abstract fun createCall(): LiveData<NetworkResponse<RequestType>>
 }

@@ -9,3 +9,6 @@
 
 package com.appacea.twitterbell.data.tweet.entities
 
+import com.appacea.twitterbell.data.tweet.network.TweetMediaVideo
+
+data class TweetMedia(val media_url:String, val type:String, val video_info: TweetMediaVideo)

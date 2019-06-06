@@ -9,3 +9,23 @@
 
 package com.appacea.twitterbell.data.tweet.network
 
+class NetworkResponse<T>{
+
+    val body: T?
+    val message: String?
+
+    val isFailure: Boolean
+
+
+    constructor(error: Throwable) {
+        this.body = null
+        this.message = error.message
+        this.isFailure = true
+    }
+
+    constructor(response: T) {
+        this.message = null
+        this.isFailure = false
+        this.body = response
+    }
+}

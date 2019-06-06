@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) Tchipr Ltd 2019. All right reserved.
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Created by Yvan Stern on 6/5/19 12:26 PM
+  ~
+  ~ Last modified 6/5/19 12:26 PM
+  -->
+
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:background="@android:color/transparent"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+    <FrameLayout
+            android:id="@+id/flBackground"
+            android:background="@color/materialWhite"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    </FrameLayout>
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvDraggable" android:layout_width="match_parent"
+                                               android:background="@android:color/transparent"
+                                               android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
+</FrameLayout>

@@ -9,3 +9,19 @@
 
 package com.appacea.twitterbell.data.tweet.local
 
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.appacea.twitterbell.data.tweet.entities.Tweet
+
+@Dao
+interface TweetDAO{
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertTweets(tweets: List<Tweet>): LongArray
+
+    @Query("SELECT * FROM `Tweet`")
+    fun getTweets(): LiveData<List<Tweet>>
+}

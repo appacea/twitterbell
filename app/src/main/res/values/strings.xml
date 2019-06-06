@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">twitterbell</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="view_searchbar_hint">Search...</string>
+    <string name="view_draggingrecyclerview_item_open">OPEN</string>
+    <string name="view_draggingrecyclerview_item_retweet">RETWEET</string>
+</resources>

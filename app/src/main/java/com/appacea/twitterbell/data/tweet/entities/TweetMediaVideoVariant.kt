@@ -9,3 +9,4 @@
 
 package com.appacea.twitterbell.data.tweet.entities
 
+data class TweetMediaVideoVariant(val url:String)

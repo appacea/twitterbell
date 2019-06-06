@@ -9,3 +9,6 @@
 
 package com.appacea.twitterbell.data.tweet.entities
 
+import com.appacea.twitterbell.data.tweet.network.TweetMedia
+
+data class TweetEntity(val media:List<TweetMedia>)

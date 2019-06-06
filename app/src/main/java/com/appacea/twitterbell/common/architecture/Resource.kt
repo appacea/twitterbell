@@ -1,20 +1,51 @@
 /*
- * Copyright (c) Tchipr Ltd 2019. All right reserved.
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Created by Yvan Stern on 6/6/19 10:11 AM
+ * Copyright (C) 2017 The Android Open Source Project
  *
- * Last modified 6/6/19 10:11 AM
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-package com.appacea.twitterbell.common.repo
+package com.appacea.twitterbell.common.architecture
 
-// A generic class that contains data and status about loading this data.
-sealed class Resource<T>(
-    val data: T? = null,
-    val message: String? = null
-) {
-    class Success<T>(data: T) : Resource<T>(data)
-    class Loading<T>(data: T? = null) : Resource<T>(data)
-    class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
+/**
+ * Status of a resource that is provided to the UI.
+ *
+ *
+ * These are usually created by the Repository classes where they return
+ * `LiveData<Resource<T>>` to pass back the latest data to the UI with its fetch status.
+ */
+enum class Status {
+    SUCCESS,
+    ERROR,
+    LOADING
 }
+
+/**
+ * A generic class that holds a value with its loading status.
+ * @param <T>
+</T> */
+data class Resource<out T>(val status: Status, val data: T?, val message: String?) {
+    companion object {
+        fun <T> success(data: T?): Resource<T> {
+            return Resource(Status.SUCCESS, data, null)
+        }
+
+        fun <T> error(msg: String, data: T?): Resource<T> {
+            return Resource(Status.ERROR, data, msg)
+        }
+
+        fun <T> loading(data: T?): Resource<T> {
+            return Resource(Status.LOADING, data, null)
+        }
+    }
+}
+
