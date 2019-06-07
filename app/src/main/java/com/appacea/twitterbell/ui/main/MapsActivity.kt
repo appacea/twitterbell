@@ -259,6 +259,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
         })
 
+
+        tweetViewModel.
     }
 
 
