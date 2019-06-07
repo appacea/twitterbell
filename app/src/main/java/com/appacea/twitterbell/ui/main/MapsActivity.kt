@@ -346,7 +346,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     override fun onMarkerClick(marker: Marker?): Boolean {
         val index = marker?.tag as Int
         draggingRecyclerview.getRecyclerView().scrollToPosition(index)
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 20f));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 20f))
+        draggingRecyclerview.open()//open if not already
         return true
     }
 

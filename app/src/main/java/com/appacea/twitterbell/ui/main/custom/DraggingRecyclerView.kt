@@ -25,12 +25,11 @@ import com.appacea.twitterbell.R
 import com.appacea.twitterbell.common.extensions.dpToPx
 
 
-
-
-
-
-
-
+/***
+ * Custom RecyclerView that flings up and down
+ *
+ *
+ */
 class DraggingRecyclerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), View.OnTouchListener, GestureDetector.OnGestureListener {
@@ -79,8 +78,9 @@ class DraggingRecyclerView @JvmOverloads constructor(
         this.listener = listener
     }
 
+    //get the touch and handle gestures
     override fun onTouch(view: View?, event: MotionEvent?): Boolean {
-        if(!isOpen){
+        if(isOpen){
             if (mDetector.onTouchEvent(event)) {
                 return true
             }
