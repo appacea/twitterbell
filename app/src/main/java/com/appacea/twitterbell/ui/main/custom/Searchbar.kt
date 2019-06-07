@@ -12,6 +12,8 @@ package com.appacea.twitterbell.ui.main.custom
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.widget.Button
+import android.widget.ImageButton
 import androidx.appcompat.widget.SearchView
 import androidx.cardview.widget.CardView
 import com.appacea.twitterbell.R
@@ -21,11 +23,11 @@ class Searchbar @JvmOverloads constructor(
 ) : CardView(context, attrs, defStyleAttr) {
 
     private var searchView: SearchView
-
+    private var menuButton: Button
     init{
         LayoutInflater.from(context).inflate(R.layout.view_searchbar, this, true)
         searchView = findViewById(R.id.searchView)
-
+        menuButton = findViewById(R.id.menuButton)
 
     }
 
