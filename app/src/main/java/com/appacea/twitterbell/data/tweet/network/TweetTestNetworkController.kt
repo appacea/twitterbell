@@ -45,7 +45,7 @@ class TweetTestNetworkController constructor(context: Context): TweetNetworkCont
     fun readJSONFromAsset(): String? {
         var json: String? = null
         try {
-            val  inputStream: InputStream = context.assets.open("twitter.json")
+            val  inputStream: InputStream = context.assets.open("twitter2.json")
             json = inputStream.bufferedReader().use{it.readText()}
         } catch (ex: Exception) {
             ex.printStackTrace()

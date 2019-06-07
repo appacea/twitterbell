@@ -34,6 +34,7 @@ class Searchbar @JvmOverloads constructor(
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 listener.onSearch(query)
+                searchView.clearFocus();
                 return true
             }
 

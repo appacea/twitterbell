@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.appacea.twitterbell.R
 import com.appacea.twitterbell.data.tweet.entities.Tweet
+import com.appacea.twitterbell.data.tweet.entities.TweetMediaType
 import com.appacea.twitterbell.data.tweet.network.TweetMedia
 import com.appacea.twitterbell.data.tweet.network.TweetStatus
 import com.squareup.picasso.Picasso
@@ -37,22 +38,45 @@ class TweetsAdapter(val items : List<Tweet>, val context: Context, val listener:
         holder.tvScreenName.text ="@"+items.get(position).user?.screen_name
         holder.tvText.text = items.get(position).text
 
-        holder.ibPhoto.setOnClickListener(object:View.OnClickListener{
-            override fun onClick(view: View?) {
-                listener.onPhotoClicked(view,items.get(position).entities?.media?.get(0))
-            }
-
-        })
-
-        holder.ibPhoto2.setOnClickListener(object:View.OnClickListener{
-            override fun onClick(view: View?) {
-                listener.onPhotoClicked(view,items.get(position).entities?.media?.get(1))
-            }
-
-        })
         Picasso.get().load(items.get(position).user?.profile_image_url).into(holder.ivProfile)
-        Picasso.get().load(items.get(position).entities?.media?.get(0)?.media_url).into(holder.ibPhoto)
-        Picasso.get().load(items.get(position).entities?.media?.get(1)?.media_url).into(holder.ibPhoto2)
+
+        val media = items.get(position).entities?.media
+        if(media != null){
+            print("dd")
+        }
+        for (i in holder.media.indices) { //set up to 3 imageviews
+            if(media != null && media.size>=i+1){ //if we have a media for the view then set it, otherwise hide it
+
+                val tweetMedia = media.get(i)
+                holder.media[i].visibility = View.VISIBLE
+                Picasso.get().load(tweetMedia.media_url).into(holder.media[i].imageView)
+                holder.media[i].imageButton.setOnClickListener(object:View.OnClickListener{
+                    override fun onClick(view: View?) {
+                        listener.onPhotoClicked(view,tweetMedia)
+                    }
+
+                })
+
+                if(tweetMedia.type == TweetMediaType.video.name){
+                    holder.media[i].showPlay()
+                }else{
+                    holder.media[i].hidePlay()
+                }
+            }
+            else{
+                holder.media[i].visibility = View.GONE
+            }
+        }
+
+
+
+
+
+
+        //TODO: setup 4 pictures / videos
+        //TODO: horizontal listview?
+        //Picasso.get().load(items.get(position).entities?.media?.get(0)?.media_url).into(holder.mtv1.imageView)
+        //Picasso.get().load(items.get(position).entities?.media?.get(1)?.media_url).into(holder.ibPhoto2)
     }
 
     fun getTweet(position:Int): Tweet{
@@ -70,7 +94,6 @@ class TweetViewHolder (view: View) : RecyclerView.ViewHolder(view) {
     val ivProfile = view.ivProfile
     val tvText = view.tvText
     val tvScreenName = view.tvScreenName
-    val ibPhoto = view.ibPhoto
-    val ibPhoto2 = view.ibPhoto2
+    val media = listOf(view.mtv1,view.mtv2,view.mtv3)
 
 }

@@ -9,9 +9,6 @@
 
 package com.appacea.twitterbell.data.tweet.entities
 
-import androidx.room.Embedded
-import com.google.gson.annotations.SerializedName
-
 data class TweetPlace(
 
     val id: String,

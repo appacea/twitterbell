@@ -59,6 +59,7 @@ import com.squareup.picasso.Picasso
 import kotlin.math.roundToInt
 
 
+//TODO: english / french
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraIdleListener{
 
@@ -234,27 +235,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
     private var currentAnimator: Animator? = null
     private var shortAnimationDuration: Int = 100
 
+    //TODO: background for zoom image/video -> custom view?
     private fun zoomImageFromThumb(thumbView: View, media: TweetMedia) {
         // If there's an animation in progress, cancel it
         // immediately and proceed with this one.
         currentAnimator?.cancel()
 
 
-        var view: View = findViewById(R.id.expanded_image)
+        var view: MediaView = findViewById(R.id.expanded_media)
 
+        view.setMedia(media)
 
         // Load the high-resolution "zoomed-in" image.
-        val expandedImageView: ImageView = findViewById(R.id.expanded_image)
+ //      val expandedImageView: MediaView = findViewById(R.id.expanded_media)
        // expandedImageView.setImageResource(imageResId)
 
-        if(media.type == "video"){
-            view = findViewById<VideoView>(R.id.expanded_video)
-            val url = media.video_info.variants.get(0).url
-            view.setVideoURI(Uri.parse(url))
-            view.start()
-        }else{
-            Picasso.get().load(media.media_url).into(expandedImageView)
-        }
+//        if(media.type == "video"){
+//            view = findViewById<VideoView>(R.id.expanded_video)
+//            val url = media.video_info.variants.get(0).url
+//            view.setVideoURI(Uri.parse(url))
+//            view.start()
+//        }else{
+//            Picasso.get().load(media.media_url).into(expandedImageView)
+//        }
 
         // Calculate the starting and ending bounds for the zoomed-in image.
         // This step involves lots of math. Yay, math.
@@ -318,9 +321,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
                 startBounds.left,
                 finalBounds.left)
             ).apply {
-                with(ObjectAnimator.ofFloat(expandedImageView, View.Y, startBounds.top, finalBounds.top))
-                with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_X, startScale, 1f))
-                with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_Y, startScale, 1f))
+                with(ObjectAnimator.ofFloat(view, View.Y, startBounds.top, finalBounds.top))
+                with(ObjectAnimator.ofFloat(view, View.SCALE_X, startScale, 1f))
+                with(ObjectAnimator.ofFloat(view, View.SCALE_Y, startScale, 1f))
             }
             duration = shortAnimationDuration.toLong()
             interpolator = DecelerateInterpolator()
@@ -346,10 +349,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
             // Animate the four positioning/sizing properties in parallel,
             // back to their original values.
             currentAnimator = AnimatorSet().apply {
-                play(ObjectAnimator.ofFloat(expandedImageView, View.X, startBounds.left)).apply {
-                    with(ObjectAnimator.ofFloat(expandedImageView, View.Y, startBounds.top))
-                    with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_X, startScale))
-                    with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_Y, startScale))
+                play(ObjectAnimator.ofFloat(view, View.X, startBounds.left)).apply {
+                    with(ObjectAnimator.ofFloat(view, View.Y, startBounds.top))
+                    with(ObjectAnimator.ofFloat(view, View.SCALE_X, startScale))
+                    with(ObjectAnimator.ofFloat(view, View.SCALE_Y, startScale))
                 }
                 duration = shortAnimationDuration.toLong()
                 interpolator = DecelerateInterpolator()
@@ -357,13 +360,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCamera
 
                     override fun onAnimationEnd(animation: Animator) {
                         thumbView.alpha = 1f
-                        expandedImageView.visibility = View.GONE
+                        view.visibility = View.GONE
                         currentAnimator = null
                     }
 
                     override fun onAnimationCancel(animation: Animator) {
                         thumbView.alpha = 1f
-                        expandedImageView.visibility = View.GONE
+                        view.visibility = View.GONE
                         currentAnimator = null
                     }
                 })

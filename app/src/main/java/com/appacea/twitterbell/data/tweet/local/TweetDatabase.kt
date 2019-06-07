@@ -33,7 +33,7 @@ abstract class TweetDatabase : RoomDatabase() {
                         context.applicationContext,
                         TweetDatabase::class.java, "tweet_database"
                     )
-                        .fallbackToDestructiveMigration()
+                        .fallbackToDestructiveMigration() //TODO: REMOVE THIS !! (make it migrateable)
                         .build()
                 }
             }
