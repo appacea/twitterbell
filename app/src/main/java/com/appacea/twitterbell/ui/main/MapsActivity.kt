@@ -76,7 +76,6 @@ import com.google.android.material.navigation.NavigationView
 import com.squareup.picasso.Picasso
 import com.twitter.sdk.android.core.TwitterCore
 import kotlinx.android.synthetic.main.activity_maps.*
-import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.dialog_radius.view.*
 import kotlin.math.roundToInt
 
@@ -107,14 +106,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        setSupportActionBar(toolbar)
+       // setSupportActionBar(toolbar)
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         user = User.getCurrentUser(this)!!
-
+/*
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar,
             R.string.navigation_drawer_open,
@@ -123,7 +122,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
-
+*/
 
         //Setup recyclerview
         draggingRecyclerview = findViewById<DraggingRecyclerView>(R.id.drvBottom)

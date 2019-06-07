@@ -54,7 +54,7 @@ class MapHelper constructor(context: Context, map:GoogleMap){
         if(tweet.geo!=null){
             val img = BitmapFactory.decodeResource(context.getResources(), com.appacea.twitterbell.R.drawable.twitter_bird)
             val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(img)
-            val location = LatLng(tweet.geo.coordinates.get(1), tweet.geo.coordinates.get(0))
+            val location = LatLng(tweet.geo.coordinates.get(0), tweet.geo.coordinates.get(1))
             val markerOptions = MarkerOptions()
             markerOptions.position(location)
                 .icon(bitmapDescriptor)
@@ -74,15 +74,6 @@ class MapHelper constructor(context: Context, map:GoogleMap){
             polygon.tag = index
             shapes.put(tweet,polygon)
         }
-//        else{
-//            val circleOptions = CircleOptions()
-//            circleOptions.center(LatLng(45.50884, -73.58781))
-//                .radius(5.0)
-//                .strokeWidth(10f)
-//                .strokeColor(Color.GREEN)
-//                .fillColor(Color.argb(128, 255, 0, 0))
-//            map.addCircle(circleOptions)
-//        }
     }
 
 
