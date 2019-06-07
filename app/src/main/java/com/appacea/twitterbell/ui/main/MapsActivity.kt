@@ -19,6 +19,7 @@ import android.graphics.RectF
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -68,6 +69,7 @@ import kotlinx.android.synthetic.main.dialog_radius.view.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraIdleListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnPolygonClickListener{
 
+    private lateinit var lastSearch:String
     private lateinit var user: User
     private lateinit var tweetViewModel: TweetViewModel
 
@@ -259,8 +261,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
         })
 
-
-        tweetViewModel.
+        user.getLastSearch()?.let { tweetViewModel.search(it) }
     }
 
 
@@ -443,8 +444,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
 
     //TODO: lifecycle stop location updates onstop onstart
-
-
 
     /********************************************************************************
      *
@@ -630,6 +629,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
         }
     }
+
+
 
 
 }
