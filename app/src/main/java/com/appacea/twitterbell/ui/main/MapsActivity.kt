@@ -106,23 +106,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-       // setSupportActionBar(toolbar)
-
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         user = User.getCurrentUser(this)!!
-/*
-        val toggle = ActionBarDrawerToggle(
-            this, drawer_layout, toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        drawer_layout.addDrawerListener(toggle)
-        toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
-*/
 
         //Setup recyclerview
         draggingRecyclerview = findViewById<DraggingRecyclerView>(R.id.drvBottom)
