@@ -20,7 +20,7 @@
     <string name="maps_activity_retweeted_dialog_message">Vous avez retweeter.</string>
     <string name="nav_radius">Rayon</string>
     <string name="title_activity_maps">TwitterBell</string>
-    <string name="radius_dialog_title">Rayon</string>
+    <string name="radius_dialog_title">Rayon (km)</string>
     <string name="radius_dialog_save">Sauvegarder</string>
     <string name="radius_dialog_cancel">Annuler</string>
     <string name="maps_activity_nogeo">Il n\'y a pas de géolocalisation pour ce tweet</string>

@@ -60,5 +60,6 @@ class LoginActivity : AppCompatActivity() {
     fun openMapsActivity(){
         val intent = Intent(this@LoginActivity, MapsActivity::class.java)
         startActivity(intent)
+        finish()
     }
 }

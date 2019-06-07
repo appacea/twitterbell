@@ -21,6 +21,7 @@ import com.appacea.twitterbell.data.tweet.entities.SearchParams
 import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.google.gson.Gson
 import com.twitter.sdk.android.core.TwitterCore
+import java.net.URLEncoder
 import java.util.HashMap
 
 /**
@@ -65,7 +66,7 @@ class TweetVolleyNetworkController constructor(context: Context): TweetNetworkCo
      */
     override fun getTweets(params: SearchParams): LiveData<NetworkResponse<TweetResponse>> {
         val data = MutableLiveData<NetworkResponse<TweetResponse>>()
-        val url = "https://api.twitter.com/1.1/search/tweets.json?q=${params.query}&geocode=${params.latitude},${params.longitude},${params.radius}km&result_type=recent"
+        val url = "https://api.twitter.com/1.1/search/tweets.json?q=${URLEncoder.encode(params.query, "UTF-8")}&geocode=${params.latitude},${params.longitude},${params.radius}km&result_type=recent"
         val stringRequest = object: StringRequest(
             Request.Method.GET, url,
             Response.Listener<String> { response ->

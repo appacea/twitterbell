@@ -2,12 +2,12 @@
  * Copyright (c) Tchipr Ltd 2019. All right reserved.
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Created by Yvan Stern on 6/5/19 10:49 AM
+ * Created by Yvan Stern on 6/7/19 4:19 PM
  *
- * Last modified 6/4/19 11:56 PM
+ * Last modified 6/7/19 3:21 PM
  */
 
-package com.appacea.twitterbell.data.tweet.network
+package com.appacea.twitterbell
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -19,13 +19,23 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.*
 import com.appacea.twitterbell.data.tweet.entities.SearchParams
 import com.appacea.twitterbell.data.tweet.entities.Tweet
+import com.appacea.twitterbell.data.tweet.network.NetworkResponse
+import com.appacea.twitterbell.data.tweet.network.TweetNetworkController
+import com.appacea.twitterbell.data.tweet.network.TweetResponse
 import com.google.gson.Gson
 import com.twitter.sdk.android.core.TwitterCore
 import java.io.InputStream
 import java.security.SecureRandom
 import java.util.*
 
-class TweetTestNetworkController constructor(context: Context): TweetNetworkController{
+
+/**
+ * Test controller that uses local asset to generate tweet data
+ *
+ *
+ */
+class TweetTestNetworkController constructor(context: Context):
+    TweetNetworkController {
     override fun favoriteTweet(tweet: Tweet): LiveData<NetworkResponse<Boolean>> {
         val data = MutableLiveData<NetworkResponse<Boolean>>()
         val id = tweet.id
@@ -53,9 +63,6 @@ class TweetTestNetworkController constructor(context: Context): TweetNetworkCont
     private val RAND = SecureRandom()
 
     private val context: Context = context
-    private val baseUrl = "https://api.twitter.com/1.1/tweets/search/"
-    private val apiKey = "sTf6wKkiArDZP72end7DA7rOr"
-    private val apiSecret = "ITzScolzRyMU0QgSEHjxmYMN9U3UobIahyYlqApgU7jkvYjXoz"
 
     private var cache: DiskBasedCache
     private var network:BasicNetwork = BasicNetwork(HurlStack())
@@ -71,7 +78,8 @@ class TweetTestNetworkController constructor(context: Context): TweetNetworkCont
     fun getAuthorizationHeader(url:String, method:String): String{
         val oAuth1aParameters = OAuth1aParameters(
             TwitterCore.getInstance().authConfig,
-            TwitterCore.getInstance().sessionManager.activeSession.authToken,null,method,url,null)
+            TwitterCore.getInstance().sessionManager.activeSession.authToken, null, method, url, null
+        )
         return oAuth1aParameters.authorizationHeader
     }
 
@@ -89,7 +97,12 @@ class TweetTestNetworkController constructor(context: Context): TweetNetworkCont
 
     override fun getTweets(params: SearchParams):LiveData<NetworkResponse<TweetResponse>> {
         val data = MutableLiveData<NetworkResponse<TweetResponse>>()
-        data.value = NetworkResponse(Gson().fromJson(readJSONFromAsset(), TweetResponse::class.java))
+        data.value = NetworkResponse(
+            Gson().fromJson(
+                readJSONFromAsset(),
+                TweetResponse::class.java
+            )
+        )
         return data
     }
 

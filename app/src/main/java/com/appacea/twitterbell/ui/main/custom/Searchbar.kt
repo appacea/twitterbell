@@ -19,6 +19,11 @@ import androidx.appcompat.widget.SearchView
 import androidx.cardview.widget.CardView
 import com.appacea.twitterbell.R
 
+
+/**
+ * Custom Searchbar that has elevation and a left menu button
+ *
+ */
 class Searchbar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : CardView(context, attrs, defStyleAttr) {
@@ -50,6 +55,7 @@ class Searchbar @JvmOverloads constructor(
         })
         menuButton.setOnClickListener(object:OnClickListener{
             override fun onClick(p0: View?) {
+                searchView.clearFocus()
                 listener.onMenuClicked()
             }
 

@@ -16,7 +16,6 @@ import androidx.lifecycle.Transformations
 import com.appacea.twitterbell.data.tweet.entities.SearchParams
 import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.appacea.twitterbell.data.tweet.local.TweetDatabase
-import com.appacea.twitterbell.data.tweet.network.TweetTestNetworkController
 import com.appacea.twitterbell.data.tweet.network.TweetVolleyNetworkController
 import com.appacea.twitterbell.data.tweet.repository.TweetRepository
 
@@ -27,7 +26,9 @@ class TweetViewModel(application: Application): AndroidViewModel(application) {
         val database: TweetDatabase = TweetDatabase.getInstance(
             application.applicationContext
         )!!
-        tweetRepository = TweetRepository(database.tweetDAO(), TweetTestNetworkController(application.applicationContext))
+        tweetRepository = TweetRepository(database.tweetDAO(),
+            TweetVolleyNetworkController(application.applicationContext)
+        )
     }
 
     //Search livedata

@@ -160,9 +160,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         fabLocation = findViewById(R.id.fabLocation)
         fabLocation.setOnClickListener(object:View.OnClickListener{
             override fun onClick(p0: View?) {
-                val currentLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
-                targetLocation = currentLatLng
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+                if (ActivityCompat.checkSelfPermission(this@MapsActivity,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this@MapsActivity,
+                        arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
+                    return
+                }
+                if (::lastLocation.isInitialized) {
+                    val currentLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                    targetLocation = currentLatLng
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 20f))
+                }else{
+                    ErrorHandling.showErrorDialog(this@MapsActivity,getString(R.string.maps_activity_nolocation))
+                }
             }
 
         })
@@ -412,6 +422,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 TwitterCore.getInstance().sessionManager.clearActiveSession()
                 val intent = Intent(this@MapsActivity, LoginActivity::class.java)
                 startActivity(intent)
+                finish()
             }
             R.id.navRadius -> {
                 showRadiusDialog(user.getRadius().toString())
