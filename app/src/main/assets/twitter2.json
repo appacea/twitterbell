@@ -2129,39 +2129,7 @@
       },
       "geo": null,
       "coordinates": null,
-      "place": {
-        "id": "36775d842cbec509",
-        "url": "https://api.twitter.com/1.1/geo/id/36775d842cbec509.json",
-        "place_type": "city",
-        "name": "Montréal",
-        "full_name": "Montréal, Québec",
-        "country_code": "CA",
-        "country": "Canada",
-        "bounding_box": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [
-                -73.972965,
-                45.410095
-              ],
-              [
-                -73.972965,
-                45.705566
-              ],
-              [
-                -73.473085,
-                45.705566
-              ],
-              [
-                -73.473085,
-                45.410095
-              ]
-            ]
-          ]
-        },
-        "attributes": {}
-      },
+      "place": null,
       "contributors": null,
       "is_quote_status": false,
       "quote_count": 0,

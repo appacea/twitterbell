@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) Tchipr Ltd 2019. All right reserved.
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  ~ Created by Yvan Stern on 6/7/19 3:54 AM
+  ~
+  ~ Last modified 6/7/19 3:54 AM
+  -->
+
+<resources>
+    <string name="app_name">twitterbell</string>
+    <string name="view_searchbar_hint">Rechercher...</string>
+    <string name="view_draggingrecyclerview_item_retweet">Retweeter</string>
+    <string name="view_draggingrecyclerview_item_open">Favoris</string>
+    <string name="nav_logout">Ferme Session</string>
+    <string name="default_error">Une erreur est survenue.</string>
+    <string name="default_error_title">Erreur</string>
+    <string name="maps_activity_retweeted_dialog_title">Retweeter!</string>
+    <string name="maps_activity_retweeted_dialog_message">Vous avez retweeter.</string>
+    <string name="nav_radius">Rayon</string>
+    <string name="title_activity_maps">Carte</string>
+</resources>

@@ -9,24 +9,58 @@
 
 package com.appacea.twitterbell.data.user
 
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.room.Room
+import com.appacea.twitterbell.data.tweet.entities.SearchParams
+import com.appacea.twitterbell.data.tweet.local.TweetDatabase
+import com.twitter.sdk.android.core.TwitterCore
+
+val PREFS_FILENAME = "com.appacea.twitterbell.prefs"
+val PREFS_RADIUS = "com.appacea.twitterbell.prefs.radius"
+
 class User{
 
+    val prefs: SharedPreferences
+    private var lastSearch: SearchParams? = null
+
+    companion object {
+        private var instance: User? = null
+        fun getCurrentUser(context: Context): User? {
+            if (instance == null) {
+                synchronized(User::class) {
+                    instance = User(context)
+                }
+            }
+            return instance
+        }
+    }
+
+    //save radius and location of last search
+
+
+    constructor(context: Context){
+         prefs = context.getSharedPreferences(PREFS_FILENAME, 0)
+    }
+
+    fun setRadius(radius:Float){
+        val editor = prefs!!.edit()
+        editor.putFloat(PREFS_RADIUS, radius)
+        editor.apply()
+    }
+
+    fun getRadius():Float{
+        return prefs!!.getFloat(PREFS_RADIUS, 5f)
+    }
 
     fun isLoggedIn():Boolean{
-        return false
+        return TwitterCore.getInstance().sessionManager.activeSession != null
     }
 
-    fun User.getCurrentUser(){
-
+    fun setLastSearch(params:SearchParams){
+        lastSearch = params
     }
-
-    fun login(){
-
+    fun getLastSearch():SearchParams?{
+        return lastSearch
     }
-
-    fun retweet(){
-
-    }
-
-
 }

@@ -12,6 +12,7 @@ package com.appacea.twitterbell.data.tweet.repository
 import androidx.lifecycle.LiveData
 import com.appacea.twitterbell.common.architecture.NetworkBoundResource
 import com.appacea.twitterbell.common.architecture.Resource
+import com.appacea.twitterbell.data.tweet.entities.SearchParams
 import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.appacea.twitterbell.data.tweet.local.TweetDAO
 import com.appacea.twitterbell.data.tweet.network.NetworkResponse
@@ -30,7 +31,7 @@ class TweetRepository(
     }
 
 
-    fun loadTweets(query: String) : LiveData<Resource<List<Tweet>>> {
+    fun loadTweets(params: SearchParams) : LiveData<Resource<List<Tweet>>> {
         return object : NetworkBoundResource<List<Tweet>, TweetResponse>() {
 
             override fun saveCallResult(item: TweetResponse) {
@@ -42,7 +43,7 @@ class TweetRepository(
             }
 
             override fun createCall(): LiveData<NetworkResponse<TweetResponse>> {
-                return tweetNetworkController.getTweets()
+                return tweetNetworkController.getTweets(params)
             }
 
             override fun loadFromDb(): LiveData<List<Tweet>> {

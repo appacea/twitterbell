@@ -14,6 +14,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.appacea.twitterbell.common.architecture.Resource
+import com.appacea.twitterbell.data.tweet.entities.SearchParams
 import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.appacea.twitterbell.data.tweet.local.TweetDatabase
 import com.appacea.twitterbell.data.tweet.network.TweetTestNetworkController
@@ -37,19 +38,21 @@ class TweetViewModel(application: Application): AndroidViewModel(application) {
         tweetRepository = TweetRepository(database.tweetDAO(), TweetTestNetworkController(application.applicationContext))
     }
 
-    val searchInput: MutableLiveData<String> = MutableLiveData()
+    val searchInput: MutableLiveData<SearchParams> = MutableLiveData()
 
 
     val searchResult = Transformations.switchMap(searchInput){
-        if(it.length >= 1) {
-            tweetRepository.loadTweets(it)
-        } else {
-            MutableLiveData<Resource<List<Tweet>>>()
-        }
+//        if(it.length >= 1) {
+//            tweetRepository.loadTweets(it)
+//        } else {
+//            MutableLiveData<Resource<List<Tweet>>>()
+//        }
+        it->tweetRepository.loadTweets(it)
+
     }
 
-    fun search(term: String){
-        searchInput.value = (term)
+    fun search(params: SearchParams){
+        searchInput.value = (params)
     }
 
     fun retweet(tweet:Tweet) {

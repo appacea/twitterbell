@@ -23,14 +23,18 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import android.widget.Toast
 import android.widget.VideoView
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.get
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,9 +55,11 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.appacea.twitterbell.exceptions.TwitterBellNetworkError
 import com.appacea.twitterbell.ui.main.adapters.TweetsAdapter
 import com.appacea.twitterbell.common.extensions.dpToPx
+import com.appacea.twitterbell.data.tweet.entities.SearchParams
 import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.appacea.twitterbell.data.tweet.network.NetworkResponse
 import com.appacea.twitterbell.data.tweet.network.TweetMedia
+import com.appacea.twitterbell.data.user.User
 import com.appacea.twitterbell.exceptions.DialogHelper
 import com.appacea.twitterbell.exceptions.ErrorHandling
 import com.appacea.twitterbell.ui.login.LoginActivity
@@ -63,19 +69,22 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.Polygon
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.squareup.picasso.Picasso
 import com.twitter.sdk.android.core.TwitterCore
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.dialog_radius.view.*
 import kotlin.math.roundToInt
 
 
-//TODO: english / french
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraIdleListener{
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraIdleListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnPolygonClickListener{
 
+    private lateinit var user: User
     private lateinit var tweetViewModel: TweetViewModel
 
     private lateinit var mMap: GoogleMap
@@ -96,20 +105,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         setSupportActionBar(toolbar)
 
-
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        user = User.getCurrentUser(this)!!
 
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar,
@@ -118,25 +122,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-
         nav_view.setNavigationItemSelectedListener(this)
 
 
-
+        //Setup recyclerview
         draggingRecyclerview = findViewById<DraggingRecyclerView>(R.id.drvBottom)
         val recyclerView = draggingRecyclerview.getRecyclerView()
         recyclerView.layoutManager = LinearLayoutManager(this,  LinearLayoutManager.HORIZONTAL, false)
-       /* recyclerView.adapter = TweetsAdapter(tweets,this@MapsActivity, object: TweetsAdapterListener{
-            override fun onPhotoClicked(view: View?, media: TweetMedia?) {
-                if (view != null && media != null) {
-                    runOnUiThread{zoomImageFromThumb(view, media)}
-                }
-            }
-
-
-        })*/
-
-
         recyclerView.adapter = TweetsAdapter(tweets,this@MapsActivity, object: TweetsAdapterListener{
             override fun onRetweetClicked(tweet: Tweet) {
                 tweetViewModel.retweet(tweet)
@@ -148,20 +140,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 }
             }
         })
+        draggingRecyclerview.setListener(object:DraggingRecyclerViewListener{
+            override fun onClose() {
+                user.getLastSearch()?.let { mMapHelper?.zoomToSearchParams(it) }
+            }
 
-
-        recyclerView.attachSnapHelperWithListener(PagerSnapHelper(), SnapOnScrollListener.Behavior.NOTIFY_ON_SCROLL, object:
-            OnSnapPositionChangeListener {
-            override fun onSnapPositionChange(position: Int) {
-                val tweet = (recyclerView.adapter as TweetsAdapter).getTweet(position)
-                print("tweet "+position)
-                //move to tweet
-                mMapHelper?.displayTweet(tweet)
+            override fun onOpen() {
             }
 
         })
 
+        //Add Pager style snapping to recyclerview
+        recyclerView.attachSnapHelperWithListener(PagerSnapHelper(), SnapOnScrollListener.Behavior.NOTIFY_ON_SCROLL, object:
+            OnSnapPositionChangeListener {
+            override fun onSnapPositionChange(position: Int) {
+                val tweet = (recyclerView.adapter as TweetsAdapter).getTweet(position)
+                val geoExists = mMapHelper?.displayTweet(tweet,user.getLastSearch())
+                if(geoExists != true){
+                    Toast.makeText(this@MapsActivity, getString(R.string.maps_activity_nogeo), Toast.LENGTH_SHORT).show()
+                }
+            }
 
+        })
+
+        //Setup floating action button for location
         fabLocation = findViewById(R.id.fabLocation)
         fabLocation.setOnClickListener(object:View.OnClickListener{
             override fun onClick(p0: View?) {
@@ -173,14 +175,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         })
 
 
-
+        //Setup location tracking
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        //Setup viewmodel
         tweetViewModel = ViewModelProviders.of(this).get(TweetViewModel::class.java)
-
         val tweetObserver = Observer<Resource<List<Tweet>>> { tweets ->
-
-
             if(tweets.status === Status.SUCCESS && tweets.data != null){
                 //TODO: animate recyclerview open if closed
                 //TODO: just update array and notify
@@ -195,16 +195,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                         }
                     }
                 })*/
-                this.tweets.clear()
-                this.tweets.addAll(tweets.data)
-                draggingRecyclerview.getRecyclerView().adapter?.notifyDataSetChanged()
+                if(mMapHelper!=null){
+                    this.tweets.clear()
+                    this.tweets.addAll(tweets.data)
+                    draggingRecyclerview.getRecyclerView().adapter?.notifyDataSetChanged()
+                    for(i in this.tweets.indices){
+                        mMapHelper?.addTweets(this.tweets)
+                    }
+                }
             }
 
         }
-
-
         tweetViewModel.searchResult.observe(this, tweetObserver)
-
         tweetViewModel.retweetResult.observe(this, Observer<NetworkResponse<Boolean>>{it->
             if(it.isFailure){
                 ErrorHandling.showErrorDialog(this@MapsActivity,it.message)
@@ -214,7 +216,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
         })
 
-
+        //Setup searchbar
         searchbar = findViewById(R.id.searchbar)
         searchbar.setListener(object:SearchbarListener{
             override fun onMenuClicked() {
@@ -226,15 +228,55 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
 
             override fun onSearch(query: String?) {
-                val term = if(query==null) "" else query
-                tweetViewModel.search(term)
+                if (ActivityCompat.checkSelfPermission(this@MapsActivity,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this@MapsActivity,
+                        arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
+                    searchbar.clear() //TODO: execute search after permissions instead of this
+                    return
+                }
+                val lastSearch = SearchParams(lastLocation.latitude,lastLocation.longitude,user.getRadius(),query)
+                user.setLastSearch(lastSearch)
+                tweetViewModel.search(lastSearch)
             }
         })
 
-
-
-
     }
+
+
+
+
+
+
+    /**
+     * Display the radius modification dialog
+     *
+     * @param radius - the radis to display as a string
+     */
+    fun showRadiusDialog(radius:String){
+        //Inflate the dialog with custom view
+        val mDialogView = LayoutInflater.from(this).inflate(R.layout.dialog_radius, null)
+        //AlertDialogBuilder
+        val mBuilder = AlertDialog.Builder(this)
+            .setView(mDialogView)
+            .setTitle(getString(R.string.radius_dialog_title))
+        val  mAlertDialog = mBuilder.show()
+        mDialogView.dialogSaveBtn.setOnClickListener {
+            user.setRadius(mDialogView.etRadius.text.toString().toFloat())
+            mAlertDialog.dismiss()
+        }
+        mDialogView.dialogCancelBtn.setOnClickListener {
+            mAlertDialog.dismiss()
+        }
+        mDialogView.etRadius.setText(radius)
+    }
+
+    /********************************************************************************
+     *
+     * Google Maps Listeners
+     *
+     *******************************************************************************/
+
 
     /**
      * Manipulates the map once available.
@@ -247,40 +289,34 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        //Configure map helper
         mMapHelper = MapHelper(this,googleMap)
 
+        //Add listeners
+        mMap.setOnPolygonClickListener (this)
+        mMap.setOnMarkerClickListener(this)
+        mMap.setOnCameraIdleListener(this)
+        mMap.setOnCameraMoveStartedListener(this)
 
-        mMap.setOnCameraIdleListener(this);
-        mMap.setOnCameraMoveStartedListener(this);
-        mMap.setPadding(0,0,0,100.dpToPx().roundToInt());
-//        for(status in tweets.statuses){
-//            mMapHelper?.addTweet(status)
-//        }
-       // mMapHelper.addTweet(Tweet())
-//        // Add a marker in Sydney and move the camera
-//        val sydney = LatLng(-34.0, 151.0)
-//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        //Setup logo padding (abide by google terms)
+        mMap.setPadding(0,0,0,100.dpToPx().roundToInt())
 
-
+        //Get permissions for location tracking
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
             return
         }
-
-        // 1
-        mMap.isMyLocationEnabled = true
-
-// 2
-        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
-            // Got last known location. In some rare situations this can be null.
-            // 3
-            if (location != null) {
-                lastLocation = location
-                val currentLatLng = LatLng(location.latitude, location.longitude)
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+        else{
+            //Setup location tracking
+            mMap.isMyLocationEnabled = true
+            fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+                if (location != null) {
+                    lastLocation = location
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+                }
             }
         }
 
@@ -288,10 +324,37 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
 
 
+    /**
+     * onMarkerClick
+     *
+     * When Marker is clicked scroll recyclerview to tweet item
+     */
+    override fun onMarkerClick(marker: Marker?): Boolean {
+        val index = marker?.tag as Int
+        draggingRecyclerview.getRecyclerView().scrollToPosition(index)
+        return true
+    }
+
+    /**
+     * onPolygonClick
+     *
+     * When Polygon is clicked scroll recyclerview to tweet item
+     */
+    override fun onPolygonClick(polygon: Polygon?) {
+        val index = polygon?.tag as Int
+        draggingRecyclerview.getRecyclerView().scrollToPosition(index)
+    }
+
+    /**
+     * If moving the camera show the location button so we can click to get back to current location
+     */
     override fun onCameraMoveStarted(p0: Int) {
         fabLocation.show()
     }
 
+    /**
+     * If the camera stops moving and we are at our location then hide the location button
+     */
     override fun onCameraIdle() {
         if(targetLocation!=null){
             targetLocation = null
@@ -302,10 +365,74 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         }
     }
 
+
+
+
+    /********************************************************************************
+     *
+     * Activity Navigation
+     *
+     *******************************************************************************/
+
+    /**
+     * If back is pressed and drawer is open then close it
+     */
+    override fun onBackPressed() {
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+
+    /**
+     * Manage drawer clicks
+     */
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        // Handle navigation view item clicks here.
+        when (item.itemId) {
+            R.id.navLogout -> {
+                TwitterCore.getInstance().sessionManager.clearActiveSession()
+                val intent = Intent(this@MapsActivity, LoginActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.navRadius -> {
+                showRadiusDialog(user.getRadius().toString())
+            }
+        }
+
+        drawer_layout.closeDrawer(GravityCompat.START)
+        return true
+    }
+
+    /********************************************************************************
+     *
+     * Activity Lifecycle
+     *
+     *******************************************************************************/
+
+
+    //TODO: lifecycle stop location updates onstop onstart
+
+
+
+    /********************************************************************************
+     *
+     * Image/Video Zoom
+     *
+     *******************************************************************************/
+
+
     private var currentAnimator: Animator? = null
     private var shortAnimationDuration: Int = 100
 
-    //TODO: background for zoom image/video -> custom view?
+    /**
+     * Zoom from a thumbnail to the larger image or video
+     *
+     * @param thumbnail - the view to zoom into
+     * @param media - the media to display (photo or video from tweet)
+     */
     private fun zoomImageFromThumb(thumbView: View, media: TweetMedia) {
         // If there's an animation in progress, cancel it
         // immediately and proceed with this one.
@@ -313,21 +440,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
 
         var view: MediaView = findViewById(R.id.expanded_media)
-
         view.setMedia(media)
 
-        // Load the high-resolution "zoomed-in" image.
- //      val expandedImageView: MediaView = findViewById(R.id.expanded_media)
-       // expandedImageView.setImageResource(imageResId)
-
-//        if(media.type == "video"){
-//            view = findViewById<VideoView>(R.id.expanded_video)
-//            val url = media.video_info.variants.get(0).url
-//            view.setVideoURI(Uri.parse(url))
-//            view.start()
-//        }else{
-//            Picasso.get().load(media.media_url).into(expandedImageView)
-//        }
 
         // Calculate the starting and ending bounds for the zoomed-in image.
         // This step involves lots of math. Yay, math.
@@ -445,35 +559,45 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         }
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
-        when (item.itemId) {
-            R.id.navLogout -> {
-                TwitterCore.getInstance().sessionManager.clearActiveSession()
-                val intent = Intent(this@MapsActivity, LoginActivity::class.java)
-                startActivity(intent)
-            }
-            R.id.navRadius -> {
 
+    /********************************************************************************
+     *
+     * Permissions
+     *
+     *******************************************************************************/
+
+    /**
+     * If we did not get permissions then display a message
+     */
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            LOCATION_PERMISSION_REQUEST_CODE -> {
+                // If request is cancelled, the result arrays are empty.
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+
+                    //Setup location tracking
+                    mMap.isMyLocationEnabled = true
+                    fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+                        if (location != null) {
+                            lastLocation = location
+                            val currentLatLng = LatLng(location.latitude, location.longitude)
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+                        }
+                    }
+
+                } else {
+                    Toast.makeText(this, getString(R.string.maps_activity_nopermissions), Toast.LENGTH_SHORT).show();
+                }
+                return
+            }
+
+            // Add other 'when' lines to check for other
+            // permissions this app might request.
+            else -> {
+                // Ignore all other requests.
             }
         }
-
-        drawer_layout.closeDrawer(GravityCompat.START)
-        return true
-    }
-    //TODO: lifecycle stop location updates onstop onstart
-
-
-    override fun onBackPressed() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            drawer_layout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
     }
 
 

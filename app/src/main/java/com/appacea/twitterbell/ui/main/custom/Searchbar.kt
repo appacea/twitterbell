@@ -32,6 +32,9 @@ class Searchbar @JvmOverloads constructor(
 
     }
 
+    fun clear(){
+        searchView.setQuery("",false)
+    }
 
     fun setListener(listener:SearchbarListener){
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {

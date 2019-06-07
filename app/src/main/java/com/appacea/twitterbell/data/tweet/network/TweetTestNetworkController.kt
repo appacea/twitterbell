@@ -17,6 +17,7 @@ import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.*
+import com.appacea.twitterbell.data.tweet.entities.SearchParams
 import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.google.gson.Gson
 import com.twitter.sdk.android.core.TwitterCore
@@ -73,7 +74,7 @@ class TweetTestNetworkController constructor(context: Context): TweetNetworkCont
         return json
     }
 
-    override fun getTweets():LiveData<NetworkResponse<TweetResponse>> {
+    override fun getTweets(params: SearchParams):LiveData<NetworkResponse<TweetResponse>> {
         val data = MutableLiveData<NetworkResponse<TweetResponse>>()
         data.value = NetworkResponse(Gson().fromJson(readJSONFromAsset(), TweetResponse::class.java))
         return data
