@@ -51,7 +51,7 @@ class DraggingRecyclerView @JvmOverloads constructor(
         this.recyclerView.setOnTouchListener(this)
         this.flBackground = findViewById(R.id.flBackground)
         this.mDetector = GestureDetectorCompat(context, this)
-
+        this.flBackground.alpha = 0f
     }
 
     fun getRecyclerView(): RecyclerView {
@@ -76,7 +76,9 @@ class DraggingRecyclerView @JvmOverloads constructor(
     }
 
     fun close(){
-
+        if(!isOpen){
+            return
+        }
         mMode = DraggingRecyclerViewMode.ANIMATING.value
         var objectAnimatorTranslation = ObjectAnimator.ofFloat(this.recyclerView, "translationY", this.recyclerView.getY(), this.height-BOTTOM_HEIGHT.dpToPx())
         var bjectAnimatorAlpha = ObjectAnimator.ofFloat(this.flBackground, "alpha", this.flBackground.alpha, 0f )
@@ -104,7 +106,9 @@ class DraggingRecyclerView @JvmOverloads constructor(
     }
 
     fun open(){
-
+        if(isOpen){
+            return
+        }
         var objectAnimatorTranslation = ObjectAnimator.ofFloat(this.recyclerView, "translationY", this.recyclerView.getY(), 0f )
         var bjectAnimatorAlpha = ObjectAnimator.ofFloat(this.flBackground, "alpha", this.flBackground.alpha, 1f )
 

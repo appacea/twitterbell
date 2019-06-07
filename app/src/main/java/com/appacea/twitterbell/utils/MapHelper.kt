@@ -65,7 +65,8 @@ class MapHelper constructor(context: Context, map:GoogleMap){
         }
         else if(tweet.place!=null){
             val coordinates = tweet.place.bounding_box.coordinates
-            val rectOptions = PolygonOptions().clickable(true).fillColor(Color.BLUE)
+            val rectOptions = PolygonOptions().clickable(true).strokeColor(Color.BLUE)
+                .strokeWidth(5f)
             for(coordinate in coordinates.get(0)){
                 rectOptions.add(LatLng(coordinate.get(1), coordinate.get(0)))
             }
@@ -105,7 +106,7 @@ class MapHelper constructor(context: Context, map:GoogleMap){
         var shape = shapes.get(tweet)
         if(shape is Marker){
             val position = LatLng(shape.position.latitude,shape.position.longitude)
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(position,5f))
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(position,map.maxZoomLevel))
             return true
         }
         else if(shape is Polygon){
