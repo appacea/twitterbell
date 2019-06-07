@@ -10,12 +10,12 @@
 package com.appacea.twitterbell.data.tweet.network
 
 import androidx.lifecycle.LiveData
-import com.appacea.twitterbell.common.architecture.Resource
-import com.appacea.twitterbell.data.tweet.Tweet
+import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.appacea.twitterbell.utils.TwitterBellNetworkResponse
 
 interface TweetNetworkController{
 
-    fun getTweets(listener: TwitterBellNetworkResponse<TweetResponse>)
     fun getTweets(): LiveData<NetworkResponse<TweetResponse>>
+    fun retweet(tweet: Tweet):LiveData<NetworkResponse<Boolean>>
+
 }

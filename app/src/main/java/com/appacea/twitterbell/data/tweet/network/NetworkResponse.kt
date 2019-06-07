@@ -17,9 +17,9 @@ class NetworkResponse<T>{
     val isFailure: Boolean
 
 
-    constructor(error: Throwable) {
+    constructor(error: Exception?) {
         this.body = null
-        this.message = error.message
+        this.message = error?.message
         this.isFailure = true
     }
 

@@ -98,7 +98,7 @@
 
             <Button
                     style="@style/Widget.AppCompat.Button.Borderless"
-                    android:id="@+id/action_button_2"
+                    android:id="@+id/bRetweet"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -116,8 +116,8 @@
                     android:layout_marginLeft="10dp"
                     android:layout_height="60dp"
                     android:layout_marginTop="12dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/action_button_2"
-                    app:layout_constraintStart_toEndOf="@+id/action_button_2"/>
+                    app:layout_constraintBottom_toBottomOf="@+id/bRetweet"
+                    app:layout_constraintStart_toEndOf="@+id/bRetweet"/>
 
 
             <com.appacea.twitterbell.ui.main.custom.MediaThumbnailView
@@ -126,7 +126,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_height="60dp"
                     android:layout_marginTop="12dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/action_button_2"
+                    app:layout_constraintBottom_toBottomOf="@+id/bRetweet"
                     app:layout_constraintStart_toEndOf="@+id/mtv1"/>
 
             <com.appacea.twitterbell.ui.main.custom.MediaThumbnailView
@@ -135,7 +135,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_height="60dp"
                     android:layout_marginTop="12dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/action_button_2"
+                    app:layout_constraintBottom_toBottomOf="@+id/bRetweet"
                     app:layout_constraintStart_toEndOf="@+id/mtv2"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

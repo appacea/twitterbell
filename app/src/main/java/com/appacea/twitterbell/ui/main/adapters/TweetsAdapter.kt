@@ -69,7 +69,11 @@ class TweetsAdapter(val items : List<Tweet>, val context: Context, val listener:
         }
 
 
-
+        holder.bRetweet.setOnClickListener(object:View.OnClickListener{
+            override fun onClick(p0: View?) {
+                listener.onRetweetClicked(getTweet(position))
+            }
+        })
 
 
 
@@ -86,6 +90,7 @@ class TweetsAdapter(val items : List<Tweet>, val context: Context, val listener:
 
 interface TweetsAdapterListener {
     fun onPhotoClicked(view: View?, media:TweetMedia?)
+    fun onRetweetClicked(tweet:Tweet)
 }
 
 class TweetViewHolder (view: View) : RecyclerView.ViewHolder(view) {
@@ -95,5 +100,6 @@ class TweetViewHolder (view: View) : RecyclerView.ViewHolder(view) {
     val tvText = view.tvText
     val tvScreenName = view.tvScreenName
     val media = listOf(view.mtv1,view.mtv2,view.mtv3)
+    val bRetweet = view.bRetweet
 
 }

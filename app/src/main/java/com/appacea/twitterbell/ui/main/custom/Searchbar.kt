@@ -12,6 +12,7 @@ package com.appacea.twitterbell.ui.main.custom
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.widget.SearchView
@@ -23,7 +24,7 @@ class Searchbar @JvmOverloads constructor(
 ) : CardView(context, attrs, defStyleAttr) {
 
     private var searchView: SearchView
-    private var menuButton: Button
+    private var menuButton: ImageButton
     init{
         LayoutInflater.from(context).inflate(R.layout.view_searchbar, this, true)
         searchView = findViewById(R.id.searchView)
@@ -36,13 +37,19 @@ class Searchbar @JvmOverloads constructor(
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 listener.onSearch(query)
-                searchView.clearFocus();
+                searchView.clearFocus()
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 return true
             }
+        })
+        menuButton.setOnClickListener(object:OnClickListener{
+            override fun onClick(p0: View?) {
+                listener.onMenuClicked()
+            }
+
         })
     }
 
@@ -51,4 +58,5 @@ class Searchbar @JvmOverloads constructor(
 
 interface SearchbarListener{
     fun onSearch(query: String?)
+    fun onMenuClicked()
 }

@@ -16,15 +16,13 @@ import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.*
-import com.appacea.twitterbell.data.tweet.Tweet
+import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.appacea.twitterbell.exceptions.TwitterBellNetworkError
 import com.appacea.twitterbell.utils.TwitterBellNetworkResponse
 import com.google.gson.Gson
 
 class TweetVolleyNetworkController constructor(context: Context): TweetNetworkController{
-    override fun getTweets(): LiveData<NetworkResponse<TweetResponse>> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+
 
     private val baseUrl = "https://api.twitter.com/1.1/tweets/search/"
     private val apiKey = "sTf6wKkiArDZP72end7DA7rOr"
@@ -41,7 +39,7 @@ class TweetVolleyNetworkController constructor(context: Context): TweetNetworkCo
         }
     }
 
-
+/*
     override fun getTweets(listener: TwitterBellNetworkResponse<TweetResponse>){
         val url = "https://api.twitter.com/1.1/search/tweets.json?q=&geocode=-22.912214,-43.230182,1km&lang=pt&result_type=recent"
         val stringRequest = object: StringRequest(
@@ -60,6 +58,14 @@ class TweetVolleyNetworkController constructor(context: Context): TweetNetworkCo
             }
         }
         this.requestQueue.add(stringRequest)
+    }
+*/
+    override fun getTweets(): LiveData<NetworkResponse<TweetResponse>> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun retweet(tweet: Tweet): LiveData<NetworkResponse<Boolean>> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
 }

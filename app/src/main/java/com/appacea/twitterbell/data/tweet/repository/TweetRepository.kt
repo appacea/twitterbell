@@ -25,6 +25,10 @@ class TweetRepository(
 ) {
 
 
+    fun retweet(tweet:Tweet):LiveData<NetworkResponse<Boolean>>{
+        return tweetNetworkController.retweet(tweet)
+    }
+
 
     fun loadTweets(query: String) : LiveData<Resource<List<Tweet>>> {
         return object : NetworkBoundResource<List<Tweet>, TweetResponse>() {

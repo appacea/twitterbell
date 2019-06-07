@@ -52,6 +52,16 @@ class TweetViewModel(application: Application): AndroidViewModel(application) {
         searchInput.value = (term)
     }
 
+    fun retweet(tweet:Tweet) {
+        retweetInput.value = (tweet)
+    }
+
+    val retweetInput: MutableLiveData<Tweet> = MutableLiveData()
+
+    val retweetResult = Transformations.switchMap(retweetInput){
+        it -> tweetRepository.retweet(it)
+    }
+
     /*
      * LiveData observed by the UI
      * */

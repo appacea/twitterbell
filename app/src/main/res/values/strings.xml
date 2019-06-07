@@ -9,4 +9,10 @@
     <string name="view_searchbar_hint">Search...</string>
     <string name="view_draggingrecyclerview_item_open">OPEN</string>
     <string name="view_draggingrecyclerview_item_retweet">RETWEET</string>
+    <string name="nav_logout">logout</string>
+    <string name="nav_radius">radius</string>
+    <string name="default_error">An unknown error occurred.</string>
+    <string name="default_error_title">Error</string>
+    <string name="maps_activity_retweeted_dialog_title">Retweeted!</string>
+    <string name="maps_activity_retweeted_dialog_message">You just retweeted successfully</string>
 </resources>
