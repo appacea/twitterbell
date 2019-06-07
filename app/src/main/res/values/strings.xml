@@ -5,7 +5,7 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="app_name">twitterbell</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">TwitterBell</string>
     <string name="view_searchbar_hint">Search...</string>
     <string name="view_draggingrecyclerview_item_open">Favorite</string>
     <string name="view_draggingrecyclerview_item_retweet">Retweet</string>

@@ -25,12 +25,7 @@ import com.appacea.twitterbell.R
 import com.appacea.twitterbell.common.extensions.dpToPx
 
 
-enum class DraggingRecyclerViewMode(val value: Int) {
-    DOWN(1),
-    DRAGGING(2),
-    UP(3),
-    ANIMATING(4)
-}
+
 
 private const val BOTTOM_HEIGHT = 100 //dp
 
@@ -39,7 +34,6 @@ class DraggingRecyclerView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr), View.OnTouchListener, GestureDetector.OnGestureListener {
 
     private var isOpen:Boolean = true
-    private var mMode: Int = 0
     private var recyclerView: RecyclerView
     private var flBackground: FrameLayout
     private var mDetector: GestureDetectorCompat
@@ -79,12 +73,10 @@ class DraggingRecyclerView @JvmOverloads constructor(
         if(!isOpen){
             return
         }
-        mMode = DraggingRecyclerViewMode.ANIMATING.value
         var objectAnimatorTranslation = ObjectAnimator.ofFloat(this.recyclerView, "translationY", this.recyclerView.getY(), this.height-BOTTOM_HEIGHT.dpToPx())
-        var bjectAnimatorAlpha = ObjectAnimator.ofFloat(this.flBackground, "alpha", this.flBackground.alpha, 0f )
 
         mAnimatorSet = AnimatorSet()
-        mAnimatorSet.playTogether(objectAnimatorTranslation, bjectAnimatorAlpha)
+        mAnimatorSet.playTogether(objectAnimatorTranslation)
         mAnimatorSet.duration = 200
         mAnimatorSet.addListener(object: Animator.AnimatorListener{
             override fun onAnimationRepeat(p0: Animator?) {
@@ -97,7 +89,6 @@ class DraggingRecyclerView @JvmOverloads constructor(
             }
 
             override fun onAnimationEnd(p0: Animator?) {
-                mMode = DraggingRecyclerViewMode.DOWN.value
                 isOpen = false
             }
         })
@@ -110,10 +101,9 @@ class DraggingRecyclerView @JvmOverloads constructor(
             return
         }
         var objectAnimatorTranslation = ObjectAnimator.ofFloat(this.recyclerView, "translationY", this.recyclerView.getY(), 0f )
-        var bjectAnimatorAlpha = ObjectAnimator.ofFloat(this.flBackground, "alpha", this.flBackground.alpha, 1f )
 
         mAnimatorSet = AnimatorSet()
-        mAnimatorSet.playTogether(objectAnimatorTranslation, bjectAnimatorAlpha)
+        mAnimatorSet.playTogether(objectAnimatorTranslation)
         mAnimatorSet.duration = 200
         mAnimatorSet.addListener(object: Animator.AnimatorListener{
             override fun onAnimationRepeat(p0: Animator?) {
@@ -126,7 +116,6 @@ class DraggingRecyclerView @JvmOverloads constructor(
             }
 
             override fun onAnimationEnd(p0: Animator?) {
-                mMode = DraggingRecyclerViewMode.UP.value
                 isOpen = true
             }
         })
