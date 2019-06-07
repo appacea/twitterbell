@@ -30,6 +30,11 @@ import javax.crypto.spec.SecretKeySpec;
 import com.twitter.sdk.android.core.internal.oauth.OAuthConstants;
 import okio.ByteString;
 
+/***
+ * Taken from Twitter SDK KIT
+ *
+ * Helper to build the Authorization header for Twitter API calls
+ */
 class OAuth1aParameters {
     private static final String VERSION = "1.0";
     private static final String SIGNATURE_METHOD = "HMAC-SHA1";

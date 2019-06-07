@@ -13,7 +13,7 @@ import com.appacea.twitterbell.data.tweet.entities.GeoPoint
 import com.appacea.twitterbell.data.tweet.entities.GeoPolygon
 import com.appacea.twitterbell.data.tweet.entities.Tweet
 
-data class TweetResponse(val results:List<Tweet>)
+data class TweetResponse(val statuses:List<Tweet>)
 
 data class TweetStatus(val created_at:String, val id:Long, val text:String, val geo: GeoPoint, val coordinates: GeoPoint, val place:TweetPlace, val user:TweetUser, val entities:TweetExtended?)
 

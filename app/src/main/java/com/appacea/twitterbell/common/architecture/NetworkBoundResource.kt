@@ -23,14 +23,11 @@ import androidx.lifecycle.MediatorLiveData
 import com.appacea.twitterbell.data.tweet.network.NetworkResponse
 
 /**
- * A generic class that can provide a resource backed by both the sqlite database and the network.
+ * A custom NetworkBoundResource class (original taken from Android Architecture Source)
  *
+ * This implementation will handle network calls wrapped in a NetworkResponse and uses LiveData for observables
  *
- * You can read more about it in the [Architecture
- * Guide](https://developer.android.com/arch).
- * @param <ResultType>
- * @param <RequestType>
-</RequestType></ResultType> */
+ **/
 abstract class NetworkBoundResource<ResultType, RequestType>
 @MainThread constructor() {
     private val appExecutors: AppExecutors = AppExecutors()
@@ -65,6 +62,7 @@ abstract class NetworkBoundResource<ResultType, RequestType>
         result.addSource(dbSource) { newData ->
             setValue(Resource.loading(newData))
         }
+        result.removeSource(dbSource)
         result.addSource(networkResponse) { response ->
             response?.let {
                 when (!response.isFailure) {
@@ -92,46 +90,12 @@ abstract class NetworkBoundResource<ResultType, RequestType>
                     }
                 }
             }
-//            result.removeSource(apiResponse)
-//            result.removeSource(dbSource)
-//            when (response) {
-////                is ApiSuccessResponse -> {
-////                    appExecutors.diskIO().execute {
-////                        saveCallResult(processResponse(response))
-////                        appExecutors.mainThread().execute {
-////                            // we specially request a new live data,
-////                            // otherwise we will get immediately last cached value,
-////                            // which may not be updated with latest results received from network.
-////                            result.addSource(loadFromDb()) { newData ->
-////                                setValue(Resource.success(newData))
-////                            }
-////                        }
-////                    }
-////                }
-////                is ApiEmptyResponse -> {
-////                    appExecutors.mainThread().execute {
-////                        // reload from disk whatever we had
-////                        result.addSource(loadFromDb()) { newData ->
-////                            setValue(Resource.success(newData))
-////                        }
-////                    }
-////                }
-////                is ApiErrorResponse -> {
-////                    onFetchFailed()
-////                    result.addSource(dbSource) { newData ->
-////                        setValue(Resource.error(response.errorMessage, newData))
-////                    }
-////                }
-//            }
         }
     }
 
     protected open fun onFetchFailed() {}
 
     fun asLiveData() = result as LiveData<Resource<ResultType>>
-
-  //  @WorkerThread
-  //  protected open fun processResponse(response: ApiSuccessResponse<RequestType>) = response.body
 
     @WorkerThread
     protected abstract fun saveCallResult(item: RequestType)

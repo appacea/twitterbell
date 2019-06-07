@@ -12,8 +12,10 @@ package com.appacea.twitterbell.data.tweet.network
 import androidx.lifecycle.LiveData
 import com.appacea.twitterbell.data.tweet.entities.SearchParams
 import com.appacea.twitterbell.data.tweet.entities.Tweet
-import com.appacea.twitterbell.utils.TwitterBellNetworkResponse
 
+/***
+ * Interface definition for network calls to Twitter API
+ */
 interface TweetNetworkController{
 
     fun getTweets(params: SearchParams): LiveData<NetworkResponse<TweetResponse>>

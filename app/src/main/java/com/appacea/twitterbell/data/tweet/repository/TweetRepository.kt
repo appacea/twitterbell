@@ -35,7 +35,8 @@ class TweetRepository(
         return object : NetworkBoundResource<List<Tweet>, TweetResponse>() {
 
             override fun saveCallResult(item: TweetResponse) {
-                tweetDAO.insertTweets(item.results)
+                tweetDAO.deleteTweets()
+                tweetDAO.insertTweets(item.statuses)
             }
 
             override fun shouldFetch(data: List<Tweet>?): Boolean {

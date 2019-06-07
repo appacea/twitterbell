@@ -9,6 +9,9 @@
 
 package com.appacea.twitterbell.data.tweet.network
 
+/***
+ * Wrapper class for volley response
+ */
 class NetworkResponse<T>{
 
     val body: T?
@@ -16,13 +19,22 @@ class NetworkResponse<T>{
 
     val isFailure: Boolean
 
-
+    /**
+     * Init with error
+     */
     constructor(error: Exception?) {
         this.body = null
-        this.message = error?.message
+        if(error?.message == null){
+            this.message = "Error"
+        }else{
+            this.message = error?.message
+        }
         this.isFailure = true
     }
 
+    /**
+     * Init with success
+     */
     constructor(response: T) {
         this.message = null
         this.isFailure = false

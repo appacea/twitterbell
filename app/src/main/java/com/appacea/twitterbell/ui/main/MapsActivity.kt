@@ -149,7 +149,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
 
         })
-        //draggingRecyclerview.visibility = View.GONE
 
         //Add Pager style snapping to recyclerview
         recyclerView.attachSnapHelperWithListener(PagerSnapHelper(), SnapOnScrollListener.Behavior.NOTIFY_ON_SCROLL, object:
@@ -210,6 +209,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                         mMapHelper?.addTweets(this.tweets)
                     }
                 }
+            }
+            else if(tweets.status == Status.ERROR){
+                ErrorHandling.showErrorDialog(this,null)
             }
 
         }

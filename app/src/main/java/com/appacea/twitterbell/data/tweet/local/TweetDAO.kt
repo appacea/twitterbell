@@ -24,4 +24,8 @@ interface TweetDAO{
 
     @Query("SELECT * FROM `Tweet`")
     fun getTweets(): LiveData<List<Tweet>>
+
+
+    @Query("DELETE FROM `Tweet`")
+    fun deleteTweets()
 }
