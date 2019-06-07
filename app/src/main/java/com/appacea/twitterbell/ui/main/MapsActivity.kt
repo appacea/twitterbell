@@ -9,32 +9,24 @@
 
 package com.appacea.twitterbell.ui.main
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
+import android.animation.*
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
 import android.location.Location
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.DecelerateInterpolator
-import android.widget.ImageView
 import android.widget.Toast
-import android.widget.VideoView
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.get
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -43,16 +35,12 @@ import com.appacea.twitterbell.R
 import com.appacea.twitterbell.common.architecture.Resource
 import com.appacea.twitterbell.common.architecture.Status
 import com.appacea.twitterbell.common.extensions.attachSnapHelperWithListener
-import com.appacea.twitterbell.data.tweet.network.TweetResponse
-import com.appacea.twitterbell.data.tweet.network.TweetTestNetworkController
 import com.appacea.twitterbell.utils.MapHelper
-import com.appacea.twitterbell.utils.TwitterBellNetworkResponse
 
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 
-import com.appacea.twitterbell.exceptions.TwitterBellNetworkError
 import com.appacea.twitterbell.ui.main.adapters.TweetsAdapter
 import com.appacea.twitterbell.common.extensions.dpToPx
 import com.appacea.twitterbell.data.tweet.entities.SearchParams
@@ -73,7 +61,6 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.Polygon
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
-import com.squareup.picasso.Picasso
 import com.twitter.sdk.android.core.TwitterCore
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.dialog_radius.view.*
@@ -91,6 +78,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
     private var tweets: ArrayList<Tweet> = ArrayList<Tweet>()
     private lateinit var draggingRecyclerview: DraggingRecyclerView
+    private lateinit var draggingRecyclerviewAdapter: TweetsAdapter
 
     private lateinit var searchbar: Searchbar
 
@@ -113,13 +101,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         user = User.getCurrentUser(this)!!
         nav_view.setNavigationItemSelectedListener(this)
 
-        //Setup recyclerview
+        //Setup recyclerview and adapter listener
         draggingRecyclerview = findViewById<DraggingRecyclerView>(R.id.drvBottom)
         val recyclerView = draggingRecyclerview.getRecyclerView()
         recyclerView.layoutManager = LinearLayoutManager(this,  LinearLayoutManager.HORIZONTAL, false)
-        recyclerView.adapter = TweetsAdapter(tweets,this@MapsActivity, object: TweetsAdapterListener{
-            override fun onRetweetClicked(tweet: Tweet) {
-                tweetViewModel.retweet(tweet)
+        draggingRecyclerviewAdapter = TweetsAdapter(tweets,this@MapsActivity, object: TweetsAdapterListener{
+            override fun onFavoriteClicked(tweet: Tweet?) {
+                tweet?.let { tweetViewModel.favorite(it) }
+            }
+
+            override fun onRetweetClicked(tweet: Tweet?) {
+                tweet?.let { tweetViewModel.retweet(it) }
             }
 
             override fun onPhotoClicked(view: View?, media: TweetMedia?) {
@@ -128,12 +120,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 }
             }
         })
+        recyclerView.adapter = draggingRecyclerviewAdapter
+
+                //Setup listener for open / close of bottom recyclerview
         draggingRecyclerview.setListener(object:DraggingRecyclerViewListener{
-            override fun onClose() {
+            override fun onClose(height:Int) {
+                //when closed show full search area
                 user.getLastSearch()?.let { mMapHelper?.zoomToSearchParams(it) }
+                //Setup logo padding (abide by google terms)
+                mMap.setPadding(0,0,0,height)
             }
 
             override fun onOpen() {
+                //move camera to current item
+                mMapHelper?.displayTweet(draggingRecyclerviewAdapter.getTweet(0), null)
+                //Setup logo padding (abide by google terms)
+                mMap.setPadding(0,0,0,draggingRecyclerview.height)
             }
 
         })
@@ -142,10 +144,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         recyclerView.attachSnapHelperWithListener(PagerSnapHelper(), SnapOnScrollListener.Behavior.NOTIFY_ON_SCROLL, object:
             OnSnapPositionChangeListener {
             override fun onSnapPositionChange(position: Int) {
-                val tweet = (recyclerView.adapter as TweetsAdapter).getTweet(position)
-                val geoExists = mMapHelper?.displayTweet(tweet,user.getLastSearch())
-                if(geoExists != true){
-                    Toast.makeText(this@MapsActivity, getString(R.string.maps_activity_nogeo), Toast.LENGTH_SHORT).show()
+                if(position>0){
+                    val tweet = (recyclerView.adapter as TweetsAdapter).getTweet(position)
+                    val geoExists = mMapHelper?.displayTweet(tweet,user.getLastSearch())
+                    if(geoExists != true){
+                        Toast.makeText(this@MapsActivity, getString(R.string.maps_activity_nogeo), Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
 
@@ -196,6 +200,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                     for(i in this.tweets.indices){
                         mMapHelper?.addTweets(this.tweets)
                     }
+
+                    if(this.tweets.size==0){
+                        draggingRecyclerview.hide()
+                        mMap.setPadding(0,0,0,0)
+                    }else{
+                        draggingRecyclerview.show()
+
+                    }
                 }
             }
             else if(tweets.status == Status.ERROR){
@@ -203,13 +215,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
 
         }
+
+        //Observe changes in search
         tweetViewModel.searchResult.observe(this, tweetObserver)
+        //Observe results from retweet
         tweetViewModel.retweetResult.observe(this, Observer<NetworkResponse<Boolean>>{it->
             if(it.isFailure){
                 ErrorHandling.showErrorDialog(this@MapsActivity,it.message)
             }
             else{
                 DialogHelper.showDialog(this@MapsActivity, getString(R.string.maps_activity_retweeted_dialog_title),getString(R.string.maps_activity_retweeted_dialog_message))
+            }
+        })
+        //Observer results from favorite
+        tweetViewModel.favoriteResult.observe(this, Observer<NetworkResponse<Boolean>>{it->
+            if(it.isFailure){
+                ErrorHandling.showErrorDialog(this@MapsActivity,it.message)
+            }
+            else{
+                DialogHelper.showDialog(this@MapsActivity, getString(R.string.maps_activity_favorite_dialog_title),getString(R.string.maps_activity_favorite_dialog_message))
             }
         })
 
@@ -232,9 +256,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                     searchbar.clear() //TODO: execute search after permissions instead of this
                     return
                 }
-                val lastSearch = SearchParams(lastLocation.latitude,lastLocation.longitude,user.getRadius(),query)
-                user.setLastSearch(lastSearch)
-                tweetViewModel.search(lastSearch)
+                if (::lastLocation.isInitialized) {
+                    val lastSearch = SearchParams(lastLocation.latitude,lastLocation.longitude,user.getRadius(),query)
+                    user.setLastSearch(lastSearch)
+                    tweetViewModel.search(lastSearch)
+                }else{
+                    ErrorHandling.showErrorDialog(this@MapsActivity,getString(R.string.maps_activity_nolocation))
+                }
             }
         })
 
@@ -286,6 +314,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+
+        //hide location button we made our own
+        mMap.uiSettings.isMyLocationButtonEnabled = false
+
+        //init logo to bottom of draggingrecyclerview
+        //TODO: set padding based on position of recyclerview
+        //mMap?.setPadding(0,0,0,draggingRecyclerview.BOTTOM_HEIGHT)
+
         //Configure map helper
         mMapHelper = MapHelper(this,googleMap)
 
@@ -295,8 +331,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         mMap.setOnCameraIdleListener(this)
         mMap.setOnCameraMoveStartedListener(this)
 
-        //Setup logo padding (abide by google terms)
-        mMap.setPadding(0,0,0,100.dpToPx().roundToInt())
 
         //Get permissions for location tracking
         if (ActivityCompat.checkSelfPermission(this,
@@ -563,9 +597,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
      *
      *******************************************************************************/
 
+    //TODO: DIALOG EXPLAINING WHY WE NEED LOCATION DATA (BEST PRACTICE)
     /**
      * If we did not get permissions then display a message
      */
+    @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {

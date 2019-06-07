@@ -27,13 +27,18 @@ import com.appacea.twitterbell.common.extensions.dpToPx
 
 
 
-private const val BOTTOM_HEIGHT = 100 //dp
+
+
+
 
 class DraggingRecyclerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), View.OnTouchListener, GestureDetector.OnGestureListener {
 
-    private var isOpen:Boolean = true
+
+    val BOTTOM_HEIGHT: Int //dp
+    private var isOpen:Boolean = false
+    private var isHidden:Boolean = false
     private var recyclerView: RecyclerView
     private var flBackground: FrameLayout
     private var mDetector: GestureDetectorCompat
@@ -46,7 +51,25 @@ class DraggingRecyclerView @JvmOverloads constructor(
         this.flBackground = findViewById(R.id.flBackground)
         this.mDetector = GestureDetectorCompat(context, this)
         this.flBackground.alpha = 0f
+        BOTTOM_HEIGHT = context.resources.getDimensionPixelSize(R.dimen.draggingrecyclerview_bottom_height)
     }
+
+    fun hide(){
+        if(!isHidden){
+            this.visibility = View.INVISIBLE
+            this.isHidden = true
+        }
+    }
+
+    fun show(){
+        if(isHidden){
+            this.visibility = View.VISIBLE
+            this.isHidden = false
+            close()
+        }
+
+    }
+
 
     fun getRecyclerView(): RecyclerView {
         return this.recyclerView
@@ -70,10 +93,11 @@ class DraggingRecyclerView @JvmOverloads constructor(
     }
 
     fun close(){
+        listener?.onClose(BOTTOM_HEIGHT)
         if(!isOpen){
             return
         }
-        var objectAnimatorTranslation = ObjectAnimator.ofFloat(this.recyclerView, "translationY", this.recyclerView.getY(), this.height-BOTTOM_HEIGHT.dpToPx())
+        var objectAnimatorTranslation = ObjectAnimator.ofFloat(this.recyclerView, "translationY", this.recyclerView.getY(), (this.height-BOTTOM_HEIGHT).toFloat())
 
         mAnimatorSet = AnimatorSet()
         mAnimatorSet.playTogether(objectAnimatorTranslation)
@@ -93,10 +117,10 @@ class DraggingRecyclerView @JvmOverloads constructor(
             }
         })
         mAnimatorSet.start()
-        listener?.onClose()
     }
 
     fun open(){
+        listener?.onOpen()
         if(isOpen){
             return
         }
@@ -120,7 +144,6 @@ class DraggingRecyclerView @JvmOverloads constructor(
             }
         })
         mAnimatorSet.start()
-        listener?.onOpen()
     }
 
     override fun onFling(p0: MotionEvent?, p1: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
@@ -157,6 +180,6 @@ class DraggingRecyclerView @JvmOverloads constructor(
 }
 
 interface DraggingRecyclerViewListener{
-    fun onClose()
+    fun onClose(height:Int)
     fun onOpen()
 }

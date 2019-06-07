@@ -26,6 +26,9 @@ import java.security.SecureRandom
 import java.util.*
 
 class TweetTestNetworkController constructor(context: Context): TweetNetworkController{
+    override fun favoriteTweet(tweet: Tweet): LiveData<NetworkResponse<Boolean>> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private val RAND = SecureRandom()
 

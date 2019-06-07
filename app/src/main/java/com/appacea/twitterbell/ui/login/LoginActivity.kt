@@ -23,29 +23,23 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton
 
 class LoginActivity : AppCompatActivity() {
 
-
-    lateinit var etUsername: EditText
-    lateinit var etPassword: EditText
     lateinit var tlbLogin: TwitterLoginButton
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //Use Twitter Kit for login
         Twitter.initialize(this)
-
         setContentView(R.layout.activity_login)
 
-
+        //Check if user is already logged in
         val user = User.getCurrentUser(this)
         if(user?.isLoggedIn()!!){
+            //If loggedin go to main activity
             openMapsActivity()
         }
 
-        etUsername = findViewById(R.id.etUsername)
-        etPassword = findViewById(R.id.etPassword)
         tlbLogin = findViewById(R.id.tlbLogin)
-
-        // Create a callback that’ll handle the results of the login attempts//
         tlbLogin.setCallback(object : Callback<TwitterSession>() {
             override fun success(result: Result<TwitterSession>?) {
                 openMapsActivity()

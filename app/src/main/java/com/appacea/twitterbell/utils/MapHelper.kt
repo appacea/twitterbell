@@ -90,7 +90,8 @@ class MapHelper constructor(context: Context, map:GoogleMap){
      *
      * @return - true if geo data exists
      */
-    fun displayTweet(tweet: Tweet, params:SearchParams?):Boolean{
+    fun displayTweet(tweet: Tweet?, params:SearchParams?):Boolean{
+        if(tweet == null) return false
         //If search circle is showing remove it
         searchCircle?.let {it.remove()}
 

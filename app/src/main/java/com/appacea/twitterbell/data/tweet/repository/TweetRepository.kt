@@ -30,6 +30,9 @@ class TweetRepository(
         return tweetNetworkController.retweet(tweet)
     }
 
+    fun favorite(tweet:Tweet):LiveData<NetworkResponse<Boolean>>{
+        return tweetNetworkController.favoriteTweet(tweet)
+    }
 
     fun loadTweets(params: SearchParams) : LiveData<Resource<List<Tweet>>> {
         return object : NetworkBoundResource<List<Tweet>, TweetResponse>() {

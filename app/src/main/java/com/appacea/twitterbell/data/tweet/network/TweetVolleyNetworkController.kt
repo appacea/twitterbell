@@ -29,6 +29,7 @@ import java.util.HashMap
  */
 class TweetVolleyNetworkController constructor(context: Context): TweetNetworkController{
 
+
     private var cache: DiskBasedCache
     private var network:BasicNetwork = BasicNetwork(HurlStack())
     private var requestQueue: RequestQueue
@@ -115,4 +116,32 @@ class TweetVolleyNetworkController constructor(context: Context): TweetNetworkCo
         return data
     }
 
+    /**
+     * Favorite a tweet
+     *
+     * @param tweet - the tweet to favorite
+     */
+    override fun favoriteTweet(tweet: Tweet): LiveData<NetworkResponse<Boolean>> {
+        val data = MutableLiveData<NetworkResponse<Boolean>>()
+        val id = tweet.id
+        val url = "https://api.twitter.com/1.1/favorites/create.json?id=${id}"
+        val stringRequest = object: StringRequest(
+            Request.Method.POST, url,
+            Response.Listener<String> { response ->
+                data.value = NetworkResponse(true)
+            },
+            Response.ErrorListener { error:VolleyError?->
+                data.value = NetworkResponse(error)
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = getAuthorizationHeader(url,"POST")
+                headers["Content-Type"] = "application/x-www-form-urlencoded"
+                return headers
+            }
+        }
+        this.requestQueue.add(stringRequest)
+        return data
+    }
 }

@@ -18,11 +18,14 @@ import com.appacea.twitterbell.R
 import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.appacea.twitterbell.data.tweet.entities.TweetMediaType
 import com.appacea.twitterbell.data.tweet.network.TweetMedia
-import com.appacea.twitterbell.data.tweet.network.TweetStatus
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.view_draggingrecyclerview_item.view.*
 
 
+/**
+ * Adapter to show tweets
+ *
+ */
 class TweetsAdapter(val items : List<Tweet>, val context: Context, val listener: TweetsAdapterListener) : RecyclerView.Adapter<TweetViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TweetViewHolder {
@@ -33,6 +36,11 @@ class TweetsAdapter(val items : List<Tweet>, val context: Context, val listener:
         return items.size
     }
 
+    /**
+     * Bind the tweet to view
+     *
+     * Each tweet can show up to 3 images/videos in our app
+     */
     override fun onBindViewHolder(holder: TweetViewHolder, position: Int) {
         holder.tvName.text = items.get(position).user?.name
         holder.tvScreenName.text ="@"+items.get(position).user?.screen_name
@@ -40,11 +48,9 @@ class TweetsAdapter(val items : List<Tweet>, val context: Context, val listener:
 
         Picasso.get().load(items.get(position).user?.profile_image_url).into(holder.ivProfile)
 
+        //Loop through imageviews and set photo or video if exists
         val media = items.get(position).entities?.media
-        if(media != null){
-            print("dd")
-        }
-        for (i in holder.media.indices) { //set up to 3 imageviews
+        for (i in holder.media.indices) { //set up imageviews
             if(media != null && media.size>=i+1){ //if we have a media for the view then set it, otherwise hide it
 
                 val tweetMedia = media.get(i)
@@ -75,31 +81,37 @@ class TweetsAdapter(val items : List<Tweet>, val context: Context, val listener:
             }
         })
 
-
-
-        //TODO: setup 4 pictures / videos
-        //TODO: horizontal listview?
-        //Picasso.get().load(items.get(position).entities?.media?.get(0)?.media_url).into(holder.mtv1.imageView)
-        //Picasso.get().load(items.get(position).entities?.media?.get(1)?.media_url).into(holder.ibPhoto2)
+        holder.bFavorite.setOnClickListener(object:View.OnClickListener{
+            override fun onClick(p0: View?) {
+                listener.onFavoriteClicked(getTweet(position))
+            }
+        })
     }
 
-    fun getTweet(position:Int): Tweet{
+    /**
+     * Return the tweet by position
+     */
+    fun getTweet(position:Int): Tweet?{
+        if(position>items.size){
+            return null
+        }
         return items.get(position)
     }
 }
 
 interface TweetsAdapterListener {
     fun onPhotoClicked(view: View?, media:TweetMedia?)
-    fun onRetweetClicked(tweet:Tweet)
+    fun onRetweetClicked(tweet:Tweet?)
+    fun onFavoriteClicked(tweet:Tweet?)
 }
 
 class TweetViewHolder (view: View) : RecyclerView.ViewHolder(view) {
-
     val tvName = view.tvName
     val ivProfile = view.ivProfile
     val tvText = view.tvText
     val tvScreenName = view.tvScreenName
     val media = listOf(view.mtv1,view.mtv2,view.mtv3)
     val bRetweet = view.bRetweet
+    var bFavorite = view.bFavorite
 
 }

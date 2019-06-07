@@ -20,5 +20,5 @@ interface TweetNetworkController{
 
     fun getTweets(params: SearchParams): LiveData<NetworkResponse<TweetResponse>>
     fun retweet(tweet: Tweet):LiveData<NetworkResponse<Boolean>>
-
+    fun favoriteTweet(tweet: Tweet):LiveData<NetworkResponse<Boolean>>
 }

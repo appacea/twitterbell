@@ -9,30 +9,17 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+              xmlns:app="http://schemas.android.com/apk/res-auto" android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <EditText
+    <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:text="username"
-            android:ems="10"
-            android:id="@+id/etUsername"/>
-    <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:ems="10"
-            android:id="@+id/etPassword"/>
-    <Button
-            android:text="login"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:id="@+id/bLogin"/>
-
+            android:layout_height="0dp" app:srcCompat="@drawable/ic_twitter_bird" android:id="@+id/imageView"
+            android:layout_weight="1" android:padding="100dp"/>
     <com.twitter.sdk.android.core.identity.TwitterLoginButton
             android:id="@+id/tlbLogin"
+            android:layout_margin="40dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 </LinearLayout>

@@ -21,38 +21,41 @@ import com.appacea.twitterbell.data.tweet.network.TweetVolleyNetworkController
 import com.appacea.twitterbell.data.tweet.repository.TweetRepository
 
 class TweetViewModel(application: Application): AndroidViewModel(application) {
-//@Inject constructor(
-//    tweetDao: TweetDAO,
-//    tweetNetworkController: TweetNetworkController)
-    private val tweetRepository: TweetRepository //= TweetRepository(TweetDatabase., tweetNetworkController)
+    private val tweetRepository: TweetRepository
 
     init{
         val database: TweetDatabase = TweetDatabase.getInstance(
             application.applicationContext
         )!!
-       // tweetRepository = TweetRepository(database.tweetDAO(), TweetTestNetworkController(application.applicationContext))
         tweetRepository = TweetRepository(database.tweetDAO(), TweetVolleyNetworkController(application.applicationContext))
     }
 
+    //Search livedata
     val searchInput: MutableLiveData<SearchParams> = MutableLiveData()
-
-
     val searchResult = Transformations.switchMap(searchInput){
         it->tweetRepository.loadTweets(it)
     }
-
     fun search(params: SearchParams){
         searchInput.value = (params)
     }
 
+    //Retweet livedata
     fun retweet(tweet:Tweet) {
         retweetInput.value = (tweet)
     }
-
     val retweetInput: MutableLiveData<Tweet> = MutableLiveData()
-
     val retweetResult = Transformations.switchMap(retweetInput){
         it -> tweetRepository.retweet(it)
+    }
+
+
+    //Favorite livedata
+    fun favorite(tweet:Tweet) {
+        favoriteTweet.value = (tweet)
+    }
+    val favoriteTweet: MutableLiveData<Tweet> = MutableLiveData()
+    val favoriteResult = Transformations.switchMap(favoriteTweet){
+            it -> tweetRepository.favorite(it)
     }
 
 }

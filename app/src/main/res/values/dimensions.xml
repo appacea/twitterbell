@@ -16,4 +16,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="spacing_large">16dp</dimen>
     <dimen name="spacing_xsmall">2dp</dimen>
+    <dimen name="draggingrecyclerview_bottom_height">100dp</dimen>
 </resources>

@@ -20,7 +20,7 @@
             android:layout_height="match_parent">
 
     </FrameLayout>
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvDraggable" android:layout_width="match_parent"
+    <androidx.recyclerview.widget.RecyclerView android:translationY="@dimen/draggingrecyclerview_bottom_height" android:id="@+id/rvDraggable" android:layout_width="match_parent"
                                                android:background="@android:color/transparent"
                                                android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
 </FrameLayout>
