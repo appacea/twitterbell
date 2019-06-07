@@ -42,7 +42,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 
 import com.appacea.twitterbell.ui.main.adapters.TweetsAdapter
-import com.appacea.twitterbell.common.extensions.dpToPx
 import com.appacea.twitterbell.data.tweet.entities.SearchParams
 import com.appacea.twitterbell.data.tweet.entities.Tweet
 import com.appacea.twitterbell.data.tweet.network.NetworkResponse
@@ -64,7 +63,6 @@ import com.google.android.material.navigation.NavigationView
 import com.twitter.sdk.android.core.TwitterCore
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.dialog_radius.view.*
-import kotlin.math.roundToInt
 
 
 
@@ -73,15 +71,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private lateinit var user: User
     private lateinit var tweetViewModel: TweetViewModel
 
-    private lateinit var mMap: GoogleMap
-    private var mMapHelper: MapHelper? = null
+    private var currentPosition: Int = 0 //The current position in bottom listview
+    private lateinit var mMap: GoogleMap //Google MAp
+    private var mMapHelper: MapHelper? = null //Helper for Google Map
 
-    private var tweets: ArrayList<Tweet> = ArrayList<Tweet>()
+    private var tweets: ArrayList<Tweet> = ArrayList<Tweet>() //Store list of tweets visible
     private lateinit var draggingRecyclerview: DraggingRecyclerView
     private lateinit var draggingRecyclerviewAdapter: TweetsAdapter
 
     private lateinit var searchbar: Searchbar
 
+    //Location aware fields
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lastLocation: Location
     private lateinit var fabLocation: FloatingActionButton
@@ -133,7 +133,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
             override fun onOpen() {
                 //move camera to current item
-                mMapHelper?.displayTweet(draggingRecyclerviewAdapter.getTweet(0), null)
+                mMapHelper?.displayTweet(draggingRecyclerviewAdapter.getTweet(currentPosition), null)
                 //Setup logo padding (abide by google terms)
                 mMap.setPadding(0,0,0,draggingRecyclerview.height)
             }
@@ -145,6 +145,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             OnSnapPositionChangeListener {
             override fun onSnapPositionChange(position: Int) {
                 if(position>0){
+                    currentPosition = position
                     val tweet = (recyclerView.adapter as TweetsAdapter).getTweet(position)
                     val geoExists = mMapHelper?.displayTweet(tweet,user.getLastSearch())
                     if(geoExists != true){
@@ -174,26 +175,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         tweetViewModel = ViewModelProviders.of(this).get(TweetViewModel::class.java)
         val tweetObserver = Observer<Resource<List<Tweet>>> { tweets ->
             if(tweets.status === Status.SUCCESS && tweets.data != null){
-                //TODO: animate recyclerview open if closed
-                //TODO: just update array and notify
-                /*draggingRecyclerview.getRecyclerView().adapter = TweetsAdapter(tweets.data,this@MapsActivity, object: TweetsAdapterListener{
-                    override fun onRetweetClicked(tweet: Tweet) {
-                        tweetViewModel.retweet(tweet)
-                    }
-
-                    override fun onPhotoClicked(view: View?, media: TweetMedia?) {
-                        if (view != null && media != null) {
-                            runOnUiThread{zoomImageFromThumb(view, media)}
-                        }
-                    }
-                })*/
                 if(mMapHelper!=null){
-//                    if(this.tweets.size>0){
-//                        runOnUiThread{ draggingRecyclerview.visibility = View.VISIBLE }
-//                    }
-//                    else{
-//                        draggingRecyclerview.visibility = View.GONE
-//                    }
                     this.tweets.clear()
                     this.tweets.addAll(tweets.data)
                     draggingRecyclerview.getRecyclerView().adapter?.notifyDataSetChanged()
@@ -206,6 +188,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                         mMap.setPadding(0,0,0,0)
                     }else{
                         draggingRecyclerview.show()
+                        mMap.setPadding(0,0,0,draggingRecyclerview.BOTTOM_HEIGHT)
 
                     }
                 }
@@ -346,7 +329,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 if (location != null) {
                     lastLocation = location
                     val currentLatLng = LatLng(location.latitude, location.longitude)
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 20f))
                 }
             }
         }
@@ -363,6 +346,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     override fun onMarkerClick(marker: Marker?): Boolean {
         val index = marker?.tag as Int
         draggingRecyclerview.getRecyclerView().scrollToPosition(index)
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 20f));
         return true
     }
 

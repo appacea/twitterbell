@@ -27,7 +27,27 @@ import java.util.*
 
 class TweetTestNetworkController constructor(context: Context): TweetNetworkController{
     override fun favoriteTweet(tweet: Tweet): LiveData<NetworkResponse<Boolean>> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val data = MutableLiveData<NetworkResponse<Boolean>>()
+        val id = tweet.id
+        val url = "https://api.twitter.com/1.1/favorites/create.json?id=${id}"
+        val stringRequest = object: StringRequest(
+            Request.Method.POST, url,
+            Response.Listener<String> { response ->
+                data.value = NetworkResponse(true)
+            },
+            Response.ErrorListener { error:VolleyError?->
+                data.value = NetworkResponse(error)
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = getAuthorizationHeader(url,"POST")
+                headers["Content-Type"] = "application/x-www-form-urlencoded"
+                return headers
+            }
+        }
+        this.requestQueue.add(stringRequest)
+        return data
     }
 
     private val RAND = SecureRandom()
@@ -48,23 +68,13 @@ class TweetTestNetworkController constructor(context: Context): TweetNetworkCont
         }
     }
 
-    fun getAuthorizationHeader(url:String): String{
-        val oAuth1aParameters = OAuth1aParameters(TwitterCore.getInstance().authConfig,TwitterCore.getInstance().sessionManager.activeSession.authToken,null,"POST",url,null)
+    fun getAuthorizationHeader(url:String, method:String): String{
+        val oAuth1aParameters = OAuth1aParameters(
+            TwitterCore.getInstance().authConfig,
+            TwitterCore.getInstance().sessionManager.activeSession.authToken,null,method,url,null)
         return oAuth1aParameters.authorizationHeader
-//        val token = TwitterCore.getInstance().sessionManager.activeSession.authToken.token
-//        //717657645503610880-QM1Y87Gt9NUnzbmleoxXmf3j4NjGgC1
-//        val timestamp = Date().time
-//        return "OAuth oauth_consumer_key=\"sTf6wKkiArDZP72end7DA7rOr\",oauth_token=\"717657645503610880-QM1Y87Gt9NUnzbmleoxXmf3j4NjGgC1\",oauth_signature_method=\"HMAC-SHA1\",oauth_timestamp=\"${getTimestamp}\",oauth_nonce=\"${getNonce()}\",oauth_version=\"1.0\",oauth_signature=\"e6jkeuC80MWmqSRpgaPB7r4wJzU%3D\""
     }
 
-    private fun getNonce(): String {
-        return System.nanoTime().toString() + (Math.abs(RAND.nextLong()))
-    }
-
-    private fun getTimestamp(): String {
-        val secondsFromEpoch = System.currentTimeMillis() / 1000
-        return java.lang.Long.toString(secondsFromEpoch)
-    }
     fun readJSONFromAsset(): String? {
         var json: String? = null
         try {
@@ -98,7 +108,7 @@ class TweetTestNetworkController constructor(context: Context): TweetNetworkCont
         ) {
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
-                headers["Authorization"] = getAuthorizationHeader(url)
+                headers["Authorization"] = getAuthorizationHeader(url, "POST")
                 headers["Content-Type"] = "application/x-www-form-urlencoded"
                 return headers
             }

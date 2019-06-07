@@ -27,7 +27,7 @@ class TweetViewModel(application: Application): AndroidViewModel(application) {
         val database: TweetDatabase = TweetDatabase.getInstance(
             application.applicationContext
         )!!
-        tweetRepository = TweetRepository(database.tweetDAO(), TweetVolleyNetworkController(application.applicationContext))
+        tweetRepository = TweetRepository(database.tweetDAO(), TweetTestNetworkController(application.applicationContext))
     }
 
     //Search livedata
