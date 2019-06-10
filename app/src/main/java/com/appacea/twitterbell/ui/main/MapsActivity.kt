@@ -440,10 +440,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         // Handle navigation view item clicks here.
         when (item.itemId) {
             R.id.navLogout -> {
-                TwitterCore.getInstance().sessionManager.clearActiveSession()
+                tweetViewModel.deleteTweets()
+                user.logout()
                 val intent = Intent(this@MapsActivity, LoginActivity::class.java)
                 startActivity(intent)
-                finish()
+                finish() //Should clear viewmodel linked to activity
             }
             R.id.navRadius -> {
                 showRadiusDialog(user.getRadius().toString())

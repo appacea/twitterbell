@@ -59,4 +59,8 @@ class TweetViewModel(application: Application): AndroidViewModel(application) {
             it -> tweetRepository.favorite(it)
     }
 
+    //Delete tweets
+    fun deleteTweets(){
+        tweetRepository.clearTweets()
+    }
 }

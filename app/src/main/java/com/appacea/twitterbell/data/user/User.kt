@@ -57,10 +57,16 @@ class User{
         return TwitterCore.getInstance().sessionManager.activeSession != null
     }
 
-    fun setLastSearch(params:SearchParams){
+    fun setLastSearch(params:SearchParams?){
         lastSearch = params
     }
     fun getLastSearch():SearchParams?{
         return lastSearch
+    }
+
+    fun logout(){
+        setLastSearch(null)
+        TwitterCore.getInstance().sessionManager.clearActiveSession()
+
     }
 }

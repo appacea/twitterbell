@@ -9,6 +9,7 @@
 
 package com.appacea.twitterbell.data.tweet.repository
 
+import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.appacea.twitterbell.common.architecture.NetworkBoundResource
 import com.appacea.twitterbell.common.architecture.Resource
@@ -57,6 +58,12 @@ class TweetRepository(
 
 
         }.asLiveData()
+    }
+
+    fun clearTweets(){
+        AsyncTask.execute {
+            tweetDAO.deleteTweets()
+        }
     }
 }
 
