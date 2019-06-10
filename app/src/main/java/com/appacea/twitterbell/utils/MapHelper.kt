@@ -120,7 +120,7 @@ class MapHelper constructor(context: Context, map:GoogleMap){
         //Show the search circle since the tweet came from somewhere in the area
         val circleOptions = CircleOptions()
         circleOptions.center(LatLng(params.latitude, params.longitude))
-            .radius(params.radius.toDouble())
+            .radius(params.radius.toDouble()*1000)
             .strokeWidth(10f)
             .strokeColor(Color.BLUE)
         searchCircle = map.addCircle(circleOptions)

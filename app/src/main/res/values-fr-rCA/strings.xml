@@ -23,7 +23,7 @@
     <string name="radius_dialog_title">Rayon (km)</string>
     <string name="radius_dialog_save">Sauvegarder</string>
     <string name="radius_dialog_cancel">Annuler</string>
-    <string name="maps_activity_nogeo">Il n\'y a pas de géolocalisation pour ce tweet</string>
+    <string name="maps_activity_nogeo">Il n\'y a pas de géolocalisation précis pour ce tweet</string>
     <string name="maps_activity_favorite_dialog_title">J\'aime!</string>
     <string name="maps_activity_favorite_dialog_message">Vous avez aimé le tweet</string>
     <string name="maps_activity_nopermissions">"Permission refusée "</string>

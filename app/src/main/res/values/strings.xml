@@ -15,7 +15,7 @@
     <string name="radius_dialog_title">Radius (km)</string>
     <string name="radius_dialog_save">Save</string>
     <string name="radius_dialog_cancel">Cancel</string>
-    <string name="maps_activity_nogeo">No geotag exists for this tweet</string>
+    <string name="maps_activity_nogeo">No precise geotag exists for this tweet</string>
     <string name="maps_activity_nopermissions">Permission denied</string>
     <string name="maps_activity_nolocation">Location is not yet initialized, try again soon</string>
 </resources>

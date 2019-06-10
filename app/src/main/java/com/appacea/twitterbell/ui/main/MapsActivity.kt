@@ -135,7 +135,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
             override fun onOpen() {
                 //move camera to current item
-                mMapHelper?.displayTweet(draggingRecyclerviewAdapter.getTweet(currentPosition), null)
+                displayTweet(draggingRecyclerviewAdapter.getTweet(currentPosition))
                 //Setup logo padding (abide by google terms)
                 mMap.setPadding(0,0,0,draggingRecyclerview.height)
             }
@@ -149,10 +149,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 if(position>0){
                     currentPosition = position
                     val tweet = (recyclerView.adapter as TweetsAdapter).getTweet(position)
-                    val geoExists = mMapHelper?.displayTweet(tweet,user.getLastSearch())
-                    if(geoExists != true){
-                        Toast.makeText(this@MapsActivity, getString(R.string.maps_activity_nogeo), Toast.LENGTH_SHORT).show()
-                    }
+                    displayTweet(tweet)
                 }
             }
 
@@ -191,17 +188,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                     this.tweets.clear()
                     this.tweets.addAll(tweets.data)
                     draggingRecyclerview.getRecyclerView().adapter?.notifyDataSetChanged()
-                    for(i in this.tweets.indices){
-                        mMapHelper?.addTweets(this.tweets)
-                    }
+
+                    mMapHelper?.addTweets(this.tweets)
 
                     if(this.tweets.size==0){
                         draggingRecyclerview.hide()
                         mMap.setPadding(0,0,0,0)
                     }else{
                         draggingRecyclerview.show()
-                        mMap.setPadding(0,0,0,draggingRecyclerview.BOTTOM_HEIGHT)
-
+                        draggingRecyclerview.open()
+                        //mMap.setPadding(0,0,0,draggingRecyclerview.BOTTOM_HEIGHT)
                     }
                 }
             }
@@ -261,11 +257,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
         })
 
+        //Recover from orientation change
+        //Here we could use savedinstance but because we save the search in the session we just pull it from there.
+        //TODO: pull tweets from cached result here not a new request.
         user.getLastSearch()?.let { tweetViewModel.search(it) }
     }
 
 
 
+    /********************************************************************************
+     *
+     * Custom functions
+     *
+     *******************************************************************************/
 
 
 
@@ -291,6 +295,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         }
         mDialogView.etRadius.setText(radius)
     }
+
+
+    /**
+     * Center the map on a tweet
+     *
+     * @param tweet - the tweet to display
+     */
+    private fun displayTweet(tweet:Tweet?){
+        val geoExists = mMapHelper?.displayTweet(tweet,user.getLastSearch())
+        if(geoExists != true){
+            Toast.makeText(this@MapsActivity, getString(R.string.maps_activity_nogeo), Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     /********************************************************************************
      *
@@ -443,7 +461,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
      *******************************************************************************/
 
 
-    //TODO: lifecycle stop location updates onstop onstart
+    //TODO: lifecycle stop location updates onstop onstart -> Need to test location updates further.
 
     /********************************************************************************
      *
@@ -629,7 +647,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
         }
     }
-
 
 
 
